@@ -27,7 +27,13 @@
   *{box-sizing:border-box}
   html,body{margin:0}
   body{
-    background:radial-gradient(120% 80% at 50% -8%, #14140f 0%, var(--bg) 46%), var(--bg);
+    background:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px),
+      radial-gradient(120% 80% at 50% -8%, #14140f 0%, var(--bg) 46%),
+      var(--bg);
+    background-size:var(--u) var(--u), var(--u) var(--u), auto, auto;
+    background-origin:border-box;
     color:var(--ink); font-family:var(--disp);
     min-height:100dvh; padding:clamp(18px,3vw,40px) var(--pad) clamp(40px,6vw,80px);
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
@@ -47,11 +53,6 @@
   /* ---------- STAGE: one background grid, solid panels on top ---------- */
   .stage{position:relative; width:calc(18*var(--u)); margin:0 auto;
     display:grid; grid-template-columns:repeat(18,var(--u)); grid-auto-rows:var(--u);}
-  .stage::before{content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
-    background-image:
-      linear-gradient(to right,var(--grid-line) 1px,transparent 1px),
-      linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);
-    background-size:var(--u) var(--u);}
 
   .stadium{grid-column:1/19; grid-row:2/12; position:relative; z-index:1;
     display:grid; grid-template-columns:repeat(18,1fr); grid-template-rows:repeat(10,1fr);}
@@ -76,14 +77,14 @@
 
   /* pitch (16x8) — opaque art with a clean white outline on all four sides */
   .pitch{grid-column:2/18; grid-row:2/10; position:relative; z-index:3;
-    display:grid; grid-template-columns:repeat(16,1fr); grid-template-rows:repeat(8,1fr);
-    box-shadow:inset 0 0 0 1px var(--line);}
+    display:grid; grid-template-columns:repeat(16,1fr); grid-template-rows:repeat(8,1fr);}
   .half{position:relative; display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr);}
   .half.home{grid-column:1/9; grid-row:1/9;}
   .half.away{grid-column:9/17; grid-row:1/9;}
   .cell{width:100%; height:100%;}
 
-  .markings{position:absolute; inset:0; width:100%; height:100%; overflow:visible; z-index:4; pointer-events:none;}
+  .markings{position:absolute; inset:0; width:100%; height:100%; overflow:visible; z-index:4; pointer-events:none;
+    box-sizing:border-box; border:1px solid var(--line);}
   .markings *{vector-effect:non-scaling-stroke;}
 
   .picks{position:absolute; inset:0; z-index:5; display:grid; grid-template-columns:1fr 1fr;}
@@ -131,7 +132,7 @@
   .matchstats.show{display:flex;}
   .statshead{display:flex; align-items:baseline; justify-content:space-between;
     font-family:var(--mono); letter-spacing:.22em; font-size:11px; color:#5a5a5a; margin-bottom:2px;}
-  .srow{display:grid; grid-template-columns:48px 1fr 48px; align-items:center; gap:14px;}
+  .srow{display:grid; grid-template-columns:48px 1fr 48px; align-items:center; gap:10px; margin:20px 0;}
   .sv{font-family:var(--mono); font-size:clamp(12px,1vw,15px); color:#d8d8d8;}
   .sv.h{text-align:right;} .sv.a{text-align:left;}
   .sbar{position:relative; height:16px; display:flex; align-items:center;}
@@ -141,7 +142,7 @@
   .node{position:absolute; top:50%; width:6px; height:6px; border-radius:50%; background:#0a0a0a;
     box-shadow:0 0 0 2px #f4f4f4; transform:translate(-50%,-50%);}
   .slabel{position:absolute; left:0; right:0; text-align:center; font-family:var(--mono);
-    font-size:clamp(9px,.82vw,11.5px); letter-spacing:.16em; color:#7f7f7f; pointer-events:none;}
+    font-size:clamp(9px,.82vw,11.5px); letter-spacing:.16em; color:#7f7f7f; pointer-events:none; margin-top:20px;}
   .nextrow{display:flex; justify-content:flex-end; margin-top:4px;}
   .nextbtn{font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase;
     color:#0a0a0a; background:var(--gold-hi); border:0; border-radius:4px; padding:.7em 1.3em; cursor:pointer;
@@ -189,7 +190,7 @@
 <body>
   <header class="wrap">
     <div class="eyebrow">2026</div>
-    <h1>Opepen<span class="sm">Art World Cup</span></h1>
+    <h1>Opepen Art World Cup</h1>
     <p class="sub">A 40-team single-elimination tournament decided on instinct. Trust your gut, or risk missing completely.</p>
   </header>
 
@@ -308,8 +309,7 @@ const HOME = DATA.home.tokens.map(t=>dec(t.bytes));
 const AWAY = DATA.away.tokens.map(t=>dec(t.bytes));
 const HPAL = DATA.home.palette, APAL = DATA.away.palette;
 const TI = 0;
-const pitchFor = i => PIT[(i*7+3) % PIT.length];
-function compose(kind, idx){ const pit=pitchFor(idx), tok=kind==='home'?HOME[idx]:AWAY[idx], pal=kind==='home'?HPAL:APAL, out=new Array(64);
+function compose(kind, idx, pit){ const tok=kind==='home'?HOME[idx]:AWAY[idx], pal=kind==='home'?HPAL:APAL, out=new Array(64);
   for(let i=0;i<64;i++) out[i]=(tok[i]===TI)?PP[pit[i]]:pal[tok[i]]; return out; }
 function buildCells(host){ const c=[]; for(let i=0;i<64;i++){ const d=document.createElement('div'); d.className='cell'; host.appendChild(d); c.push(d);} return c; }
 const cellsH=buildCells(document.getElementById('half-h')), cellsA=buildCells(document.getElementById('half-a'));
@@ -324,6 +324,7 @@ const FIRST_ID=41, TEAMS=40;
 const ROUND_NAMES=['Round of 40','Round of 20','Round of 10','Play-in','Semi-finals','Final'];
 const SCHEDULE=[20,10,5,1,2,1], TOTAL=SCHEDULE.reduce((a,b)=>a+b,0);
 const teamId=i=>FIRST_ID+i;
+const pitchForMatch=(a,b)=>{ const lo=Math.min(teamId(a),teamId(b)), hi=Math.max(teamId(a),teamId(b)); return PIT[(lo*31+hi*17) % PIT.length]; };
 function layout(teams){ const n=teams.length;
   if(n<2) return {matches:[], byes:teams.slice()};
   if(n===5) return {matches:[[teams[3],teams[4]]], byes:[teams[0],teams[1],teams[2]]};
@@ -378,6 +379,18 @@ const $=id=>document.getElementById(id);
 const numH=$('num-h'), numA=$('num-a'), pickH=$('pick-h'), pickA=$('pick-a');
 const scoreband=$('scoreband'), makepick=$('makepick'), matchstats=$('matchstats'), statlist=$('statlist');
 const roundlbl=$('roundlbl'), seedlbl=$('seedlbl'), bar=$('bar'), dots=$('dots');
+const stageEl=$('stage');
+
+/* anchor the full-screen body grid so a line sits exactly on the stage's
+   top-left corner -> every stadium cell boundary aligns with the screen grid */
+function anchorGrid(){
+  if(!stageEl) return;
+  const r=stageEl.getBoundingClientRect(); if(!r.width) return;
+  const u=r.width/18;                          // stage is exactly 18 cells wide
+  const sx=r.left+window.scrollX, sy=r.top+window.scrollY;
+  const ox=((sx%u)+u)%u, oy=((sy%u)+u)%u;
+  document.body.style.backgroundPosition = ox+'px '+oy+'px, '+ox+'px '+oy+'px, 0 0, 0 0';
+}
 
 const buildDots=()=>{ dots.innerHTML=''; for(let i=0;i<TOTAL;i++) dots.appendChild(document.createElement('span')); };
 function syncDots(){ let w=0; for(let r=0;r<ROUNDS.length;r++){ const L=layout(ROUNDS[r]); for(let m=0;m<L.matches.length;m++){ const [a,b]=L.matches[m], el=dots.children[w]; if(el){ el.className=''; if(VOTED.has(keyOf(a,b))) el.classList.add('done'); if(view&&r===view.r&&m===view.m) el.classList.add('cur'); } w++; } } }
@@ -397,7 +410,7 @@ function renderStats(a,b){
     el.innerHTML='<span class="sv h">'+row.h+'</span>'+
       '<div class="sbar"><div class="track"><i class="seg h '+(hWin?'win':'')+'" style="width:'+lw+'%"></i>'+
       '<i class="seg a '+(hWin?'':'win')+'" style="width:'+(100-lw)+'%"></i></div>'+
-      '<span class="node" style="left:'+lw+'%"></span><span class="slabel">'+row.label+'</span></div>'+
+      '<span class="slabel">'+row.label+'</span></div>'+
       '<span class="sv a">'+row.a+'</span>';
     statlist.appendChild(el);
   }
@@ -407,7 +420,8 @@ function render(){
   if(!view) return showChamp();
   $('champ').classList.remove('show'); $('deckview').style.display=''; $('stage').style.display='';
   const [a,b]=matchPairAt(view.r,view.m);
-  paint(cellsH, compose('home',a)); paint(cellsA, compose('away',b));
+  const pit=pitchForMatch(a,b);
+  paint(cellsH, compose('home',a,pit)); paint(cellsA, compose('away',b,pit));
   seedlbl.textContent='#'+teamId(a)+'  vs  #'+teamId(b);
   roundlbl.innerHTML=ROUND_NAMES[Math.min(view.r,5)]+' · <b>Match '+String(view.m+1).padStart(2,'0')+' / '+String(matchesInRound(view.r)).padStart(2,'0')+'</b>';
   const [hv,av]=talliesFor(a,b); countUp(numH,hv); countUp(numA,av);
@@ -417,14 +431,14 @@ function render(){
   scoreband.classList.toggle('won-h',picked==='h'); scoreband.classList.toggle('won-a',picked==='a');
   if(picked){ makepick.style.display='none'; renderStats(a,b); matchstats.classList.add('show'); }
   else { makepick.style.display=''; makepick.textContent='MAKE YOUR PICK'; matchstats.classList.remove('show'); }
-  bar.style.width=(playedCount()/TOTAL*100)+'%'; syncDots();
+  bar.style.width=(playedCount()/TOTAL*100)+'%'; syncDots(); anchorGrid();
 }
 
 function showChamp(){
   const c=ROUNDS[ROUNDS.length-1][0];
   $('stage').style.display='none'; matchstats.classList.remove('show'); $('deckview').style.display='none';
   $('champ').classList.add('show'); const crest=$('crest'); crest.innerHTML='';
-  const cols=compose('home',c); for(let i=0;i<64;i++){ const d=document.createElement('div'); d.className='cell'; d.style.background=cols[i]; crest.appendChild(d); }
+  const cols=compose('home',c,pitchForMatch(c,c)); for(let i=0;i<64;i++){ const d=document.createElement('div'); d.className='cell'; d.style.background=cols[i]; crest.appendChild(d); }
   $('champname').textContent='Team '+teamId(c);
   $('champmeta').textContent = ONLINE ? 'LIVE LEADER · UPDATES AS THE COMMUNITY VOTES' : 'WINNER · OPEPEN ART WORLD CUP 2026';
   bar.style.width='100%';
@@ -487,6 +501,63 @@ if(ONLINE){
   }, ()=>render());
 }
 render();
+window.addEventListener('resize', anchorGrid);
+window.addEventListener('load', anchorGrid);
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(anchorGrid);
+anchorGrid();
+
+/* ---------- background-grid "crowd flashes" (hover + ambient) ---------- */
+(function gridFX(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const canHover = matchMedia('(hover: hover)').matches;
+  const cv=document.createElement('canvas');
+  cv.style.cssText='position:fixed; inset:0; z-index:-1; pointer-events:none;';
+  document.body.appendChild(cv);
+  const ctx=cv.getContext('2d');
+  let W=0,H=0,dpr=1;
+  function resize(){ dpr=Math.min(2,window.devicePixelRatio||1); W=innerWidth; H=innerHeight;
+    cv.width=Math.floor(W*dpr); cv.height=Math.floor(H*dpr); cv.style.width=W+'px'; cv.style.height=H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0); }
+  resize(); addEventListener('resize',resize);
+
+  let lastG={u:60,ox:0,oy:0};
+  function grid(){ const r=stageEl.getBoundingClientRect(); if(r.width){ const u=r.width/18;
+      lastG={u, ox:((r.left%u)+u)%u, oy:((r.top%u)+u)%u}; } return lastG; }
+
+  let flashes=[];
+  function spawn(c,r,dur,peak,warm){ flashes.push({c,r,t0:performance.now(),dur,peak,warm}); if(flashes.length>300) flashes.splice(0,flashes.length-300); }
+  const startT=performance.now(), INTRO=2400;          // opening burst window
+  function ambient(){
+    const g=grid();
+    const e=performance.now()-startT, boost=e<INTRO ? 1-e/INTRO : 0;   // 1 -> 0 across the opening, then 0
+    const n=2+Math.floor(Math.random()*6)+Math.round(boost*16);        // dense at first, settles to 2..7
+    for(let i=0;i<n;i++){
+      const c=Math.floor((Math.random()*(W+g.u)-g.ox)/g.u);
+      const r=Math.floor((Math.random()*(H+g.u)-g.oy)/g.u);
+      spawn(c,r, 650+Math.random()*800, 0.08+Math.random()*0.12+boost*0.06, Math.random()<0.18+boost*0.12);
+    }
+    const delay=80+Math.random()*180 + (1-boost)*(540+Math.random()*1400);  // rapid opening -> normal cadence
+    setTimeout(ambient, delay);
+  }
+  ambient();
+
+  if(canHover){ let lc=null,lr=null;
+    addEventListener('mousemove',e=>{ const g=grid();
+      const c=Math.floor((e.clientX-g.ox)/g.u), r=Math.floor((e.clientY-g.oy)/g.u);
+      if(c!==lc||r!==lr){ lc=c; lr=r; spawn(c,r, 520, 0.22, false); } });
+  }
+
+  function frame(now){
+    ctx.clearRect(0,0,W,H); const g=grid();
+    flashes=flashes.filter(f=>now-f.t0 < f.dur);
+    for(const f of flashes){ const p=(now-f.t0)/f.dur, a=Math.sin(p*Math.PI)*f.peak; if(a<=0) continue;
+      ctx.fillStyle = f.warm ? 'rgba(243,207,38,'+a+')' : 'rgba(255,255,255,'+a+')';
+      ctx.fillRect(g.ox+f.c*g.u+1, g.oy+f.r*g.u+1, g.u-2, g.u-2);
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
 </script>
 </body>
 </html>
