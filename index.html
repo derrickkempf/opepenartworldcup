@@ -129,11 +129,11 @@
   @keyframes mar{from{transform:translateX(0)}to{transform:translateX(-50%)}}
   @keyframes marV{from{transform:translateY(0)}to{transform:translateY(-50%)}}
   .pitch{grid-column:2/18; grid-row:2/10; position:relative; z-index:3;
-    display:grid; grid-template-columns:repeat(16,1fr); grid-template-rows:repeat(8,1fr);}
+    display:grid; grid-template-columns:repeat(16,var(--u)); grid-template-rows:repeat(8,var(--u));}
   /* each half is sized by the pitch grid (8 square units wide x 8 tall = a true
      square), so the 8x8 cells stay square without an explicit aspect-ratio. */
   .half{position:relative; display:grid;
-    grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr);}
+    grid-template-columns:repeat(8,var(--u)); grid-template-rows:repeat(8,var(--u));}
   .half.home{grid-column:1/9; grid-row:1/9;}
   .half.away{grid-column:9/17; grid-row:1/9;}
   .cell{width:100%; height:100%;}
@@ -361,7 +361,7 @@
   @keyframes cbpulse{0%,100%{opacity:1}50%{opacity:.45}}
 
   /* ---------- HOME / LANDING ---------- */
-  .home{width:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;align-items:center;text-align:center}
+  .homepage{width:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;align-items:center;text-align:center}
   .home-hero{padding:clamp(20px,4vw,56px) 0 clamp(16px,2.4vw,30px);display:flex;flex-direction:column;align-items:center;gap:14px}
   .home-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold-mid)}
   .home-hh{margin:0;font-weight:800;line-height:1.02;letter-spacing:-.03em;font-size:clamp(34px,6.4vw,66px);color:#fff;max-width:15ch}
@@ -465,7 +465,7 @@
   </header>
 
   <!-- ================= HOME ================= -->
-  <section data-page="home" hidden class="page home">
+  <section data-page="home" hidden class="page homepage">
     <div class="home-hero">
       <h2 class="home-hh">Your Gut Knows. Now Prove It.</h2>
       <p class="home-sub">40 artworks. 90-second matches. The artwork people love fastest wins. No critics. No algorithms.</p>
