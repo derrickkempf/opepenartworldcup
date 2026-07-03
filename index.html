@@ -393,13 +393,13 @@
   /* ---------- NEW: one-shot intro splash (ported from hero) ---------- */
   #splash{position:fixed; inset:0; z-index:9998; background:var(--bg); overflow:hidden;
     display:grid; place-items:center; opacity:1; transition:opacity .6s var(--ease);
-    animation:splashOut .6s var(--ease) 3.2s forwards; -webkit-tap-highlight-color:transparent;}
+    animation:splashOut .7s var(--ease) 5.4s forwards; -webkit-tap-highlight-color:transparent;}
   #splash.fade{opacity:0; pointer-events:none; animation:none;}
   @keyframes splashOut{to{opacity:0; pointer-events:none;}}
   #splash .sp-layer{position:absolute; left:50%; top:50%; width:26vmin; aspect-ratio:544/816;
     translate:-50% -44%; transform-origin:50% 38%; transform:scale(.001); opacity:0;
     fill:var(--fill); stroke:var(--fill); stroke-width:1.2; overflow:visible;
-    animation:spBloom 1.9s cubic-bezier(.6,.04,.5,.96) 1.7s 1 forwards;}
+    animation:spBloom 3.8s cubic-bezier(.6,.04,.5,.96) 1.7s 1 forwards;}
   @keyframes spBloom{
     0%{transform:scale(.001); opacity:0}
     6%{transform:scale(.001); opacity:1}
@@ -467,7 +467,6 @@
   <!-- ================= HOME ================= -->
   <section data-page="home" hidden class="page home">
     <div class="home-hero">
-      <div class="home-eyebrow">The Art World Cup · 2026</div>
       <h2 class="home-hh">Your Gut Knows. Now Prove It.</h2>
       <p class="home-sub">40 artworks. 90-second matches. The artwork people love fastest wins. No critics. No algorithms.</p>
       <a class="home-cta" href="#/play">Enter the Tournament →</a>
@@ -1540,7 +1539,7 @@ snapHeights();
   };
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   /* auto-dismiss timing: full animation ~3.6s, or a short static hold under reduced motion */
-  setTimeout(dismiss, reduced ? 800 : 3600);
+  setTimeout(dismiss, reduced ? 800 : 6200);
   sp.addEventListener('click', dismiss);
   sp.addEventListener('touchstart', dismiss, {passive:true});
 })();
