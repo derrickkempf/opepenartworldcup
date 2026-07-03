@@ -130,9 +130,9 @@
   @keyframes marV{from{transform:translateY(0)}to{transform:translateY(-50%)}}
   .pitch{grid-column:2/18; grid-row:2/10; position:relative; z-index:3;
     display:grid; grid-template-columns:repeat(16,1fr); grid-template-rows:repeat(8,1fr);}
-  /* each half is a true 8x8 square: aspect-ratio locks 1:1 so cells never stretch
-     at any viewport width, and the inner grid uses equal square tracks. */
-  .half{position:relative; display:grid; aspect-ratio:1/1;
+  /* each half is sized by the pitch grid (8 square units wide x 8 tall = a true
+     square), so the 8x8 cells stay square without an explicit aspect-ratio. */
+  .half{position:relative; display:grid;
     grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr);}
   .half.home{grid-column:1/9; grid-row:1/9;}
   .half.away{grid-column:9/17; grid-row:1/9;}
