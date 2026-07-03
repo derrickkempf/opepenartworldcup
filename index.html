@@ -108,8 +108,8 @@
   .rules b{color:var(--gold-hi)}
 
   /* ---------- STAGE (unchanged from the prototype) ---------- */
-  .stage{position:relative; width:calc(18*var(--u)); margin:0 auto;
-    display:grid; grid-template-columns:repeat(18,var(--u)); grid-auto-rows:var(--u);}
+  .stage{position:relative; width:calc(18*var(--u)); max-width:100%; margin:0 auto;
+    display:grid; grid-template-columns:repeat(18,var(--u)); grid-auto-rows:var(--u); justify-content:center;}
   .stadium{grid-column:1/19; grid-row:2/12; position:relative; z-index:1;
     display:grid; grid-template-columns:repeat(18,1fr); grid-template-rows:repeat(10,1fr);}
   .board{background:var(--bg); position:relative; z-index:2; overflow:hidden; display:flex; align-items:center;
@@ -130,7 +130,10 @@
   @keyframes marV{from{transform:translateY(0)}to{transform:translateY(-50%)}}
   .pitch{grid-column:2/18; grid-row:2/10; position:relative; z-index:3;
     display:grid; grid-template-columns:repeat(16,1fr); grid-template-rows:repeat(8,1fr);}
-  .half{position:relative; display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr);}
+  /* each half is a true 8x8 square: aspect-ratio locks 1:1 so cells never stretch
+     at any viewport width, and the inner grid uses equal square tracks. */
+  .half{position:relative; display:grid; aspect-ratio:1/1;
+    grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr);}
   .half.home{grid-column:1/9; grid-row:1/9;}
   .half.away{grid-column:9/17; grid-row:1/9;}
   .cell{width:100%; height:100%;}
@@ -151,7 +154,21 @@
   .stage.dim .pitch{filter:grayscale(1) brightness(.65)}
 
   /* ---------- SCOREBOARD ---------- */
-  .scoreband{grid-column:6/14; grid-row:12/12; position:relative; z-index:2; overflow:visible;
+  /* TIME box stacked directly on top of the team-score box */
+  .scoretime{grid-column:6/14; grid-row:12/13; position:relative; z-index:2;
+    background:var(--board); border:1px solid #242424; border-bottom:0;
+    display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
+    padding:calc(var(--u)*.14) calc(var(--u)*.45); min-height:calc(var(--u)*.62);
+    font-family:var(--mono); text-transform:uppercase;}
+  .scoretime .st-l{grid-column:1; justify-self:start; color:var(--gold-mid);
+    font-size:calc(var(--u)*.2); letter-spacing:.08em;}
+  .scoretime .st-c{grid-column:2; justify-self:center; color:#fff; font-weight:600;
+    font-size:calc(var(--u)*.3); letter-spacing:.06em; font-variant-numeric:tabular-nums;}
+  .scoretime .st-r{grid-column:3; justify-self:end; text-align:right; color:var(--muted);
+    font-size:calc(var(--u)*.2); letter-spacing:.08em;}
+  .scoretime.live .st-c{color:#e0332b;} .scoretime.ft .st-c{color:#e0332b;}
+  .scoretime.ht .st-c{color:var(--gold-mid);} .scoretime.ko .st-c{color:var(--green);}
+  .scoreband{grid-column:6/14; grid-row:13/14; position:relative; z-index:2; overflow:visible;
     background:var(--board); border:1px solid #242424;
     display:grid; grid-template-columns:1fr auto auto auto 1fr; align-items:center;}
   .scoreband .sidebg{position:absolute; top:0; bottom:0; width:50%; z-index:0; background:transparent; transition:background .35s var(--ease);}
@@ -284,8 +301,9 @@
 
   /* ---------- NEW: vote-zone shot overlay ---------- */
   .shot-ov{position:absolute; inset:0; z-index:7; pointer-events:none;}
-  .shot-cell{position:absolute; width:12.5%; height:12.5%; background:var(--gold-hi);
-    box-shadow:0 0 0 2px #0a0a0a, 0 0 calc(var(--u)*.2) rgba(243,207,38,.7);}
+  /* the shot lands as a gold ball: a plain circle, no border/stroke/ring */
+  .shot-cell{position:absolute; width:11%; height:11%; background:var(--gold-hi);
+    border:0; outline:0; box-shadow:none; border-radius:50%; transform:translate(-50%,-50%);}
 
   /* ---------- NEW: match commentary ---------- */
   .commentary{width:calc(18*var(--u)); max-width:100%; margin:8px auto 0; background:var(--board);
@@ -342,15 +360,101 @@
   #bracket .cb-legend{font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#4a4a4a; text-align:center; margin-top:6px;}
   @keyframes cbpulse{0%,100%{opacity:1}50%{opacity:.45}}
 
+  /* ---------- HOME / LANDING ---------- */
+  .home{width:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;align-items:center;text-align:center}
+  .home-hero{padding:clamp(20px,4vw,56px) 0 clamp(16px,2.4vw,30px);display:flex;flex-direction:column;align-items:center;gap:14px}
+  .home-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold-mid)}
+  .home-hh{margin:0;font-weight:800;line-height:1.02;letter-spacing:-.03em;font-size:clamp(34px,6.4vw,66px);color:#fff;max-width:15ch}
+  .home-sub{margin:0;color:var(--muted);font-size:clamp(14px,1.4vw,18px);line-height:1.5;max-width:46ch}
+  .home-cta{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;
+    color:#0a0a0a;background:var(--gold-hi);border:0;border-radius:6px;padding:.95em 1.7em;cursor:pointer;transition:transform .16s var(--ease),background .16s var(--ease)}
+  .home-cta:hover{background:#fff;transform:translateY(-1px)}
+  .home-cta.ghost{background:transparent;color:var(--gold-hi);border:1px solid var(--gold-lo)}
+  .home-cta.ghost:hover{background:rgba(167,121,43,.1);color:#fff}
+  .home-rule{width:100%;max-width:520px;border:0;border-top:1px solid var(--board-edge);margin:clamp(24px,3.5vw,44px) auto 0}
+  .home-block{width:100%;padding:clamp(30px,5vw,58px) 0}
+  .home-lead{margin:0 auto;font-weight:700;letter-spacing:-.02em;line-height:1.14;font-size:clamp(23px,3.4vw,40px);color:var(--gold);max-width:24ch}
+  .home-lead-sub{margin:12px auto 0;color:var(--muted);font-size:clamp(13px,1.2vw,16px)}
+  .home-seclbl{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-mid);margin-bottom:clamp(16px,2vw,26px)}
+  .steps{width:100%;max-width:560px;margin:0 auto;text-align:left}
+  .step{display:flex;gap:18px;align-items:flex-start;padding:18px 0;border-bottom:1px solid var(--board-edge)}
+  .step:last-child{border-bottom:0}
+  .step-n{font-family:var(--mono);font-weight:700;font-size:24px;color:var(--gold);flex:none;width:34px;line-height:1.1}
+  .step h3{margin:0;font-size:16px;font-weight:700;color:#eaeaea;letter-spacing:-.01em}
+  .step p{margin:5px 0 0;color:var(--muted);font-size:14px;line-height:1.5}
+  .changes{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:640px;margin:0 auto;text-align:left}
+  .change{background:var(--board);border:1px solid var(--board-edge);border-radius:8px;padding:18px}
+  .change h3{margin:0 0 6px;font-size:14px;font-weight:700;color:var(--gold-hi)}
+  .change p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+  .home-final{padding:clamp(34px,6vw,72px) 0}
+  .home-final-cta{margin-top:22px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  @media(max-width:560px){ .changes{grid-template-columns:1fr} .home-hh{font-size:clamp(30px,9vw,42px)} }
+
+  /* ---------- NEW: one-shot intro splash (ported from hero) ---------- */
+  #splash{position:fixed; inset:0; z-index:9998; background:var(--bg); overflow:hidden;
+    display:grid; place-items:center; opacity:1; transition:opacity .6s var(--ease);
+    animation:splashOut .6s var(--ease) 3.2s forwards; -webkit-tap-highlight-color:transparent;}
+  #splash.fade{opacity:0; pointer-events:none; animation:none;}
+  @keyframes splashOut{to{opacity:0; pointer-events:none;}}
+  #splash .sp-layer{position:absolute; left:50%; top:50%; width:26vmin; aspect-ratio:544/816;
+    translate:-50% -44%; transform-origin:50% 38%; transform:scale(.001); opacity:0;
+    fill:var(--fill); stroke:var(--fill); stroke-width:1.2; overflow:visible;
+    animation:spBloom 1.9s cubic-bezier(.6,.04,.5,.96) 1.7s 1 forwards;}
+  @keyframes spBloom{
+    0%{transform:scale(.001); opacity:0}
+    6%{transform:scale(.001); opacity:1}
+    52%{transform:scale(46); opacity:1}
+    62%{transform:scale(46); opacity:1}
+    100%{transform:scale(46); opacity:0}}
+  #splash .sp-stage{position:absolute; inset:0; display:grid; place-items:center;}
+  #splash .sp-lockgroup{display:flex; flex-direction:column; align-items:center; gap:clamp(16px,3.4vh,30px);}
+  #splash .sp-heroT{height:min(32vmin,280px); z-index:3;
+    filter:drop-shadow(0 20px 40px rgba(0,0,0,.55)); opacity:0;
+    animation:spTrophy 1.4s var(--ease) .1s 1 forwards;}
+  #splash .sp-heroT svg{height:100%; width:auto; display:block;}
+  @keyframes spTrophy{
+    0%{opacity:0; transform:translateY(8vh) scale(.94); filter:brightness(.1)}
+    35%{opacity:1}
+    100%{opacity:1; transform:none; filter:brightness(1)}}
+  #splash .sp-lockup{text-align:center; white-space:nowrap; opacity:0; translate:0 24px;
+    animation:spLock 1s var(--ease) .55s 1 forwards;}
+  @keyframes spLock{0%{opacity:0; translate:0 24px} 100%{opacity:1; translate:0 0}}
+  #splash .sp-lockup h1{margin:0; font-weight:600; letter-spacing:-.025em; color:var(--gold);
+    font-size:clamp(22px,4.6vmin,44px); line-height:1.1;}
+  #splash .sp-lockup p{margin:.5em 0 0; font-weight:600; letter-spacing:-.01em; color:#1b5c46;
+    font-size:clamp(12px,2.1vmin,20px); line-height:1;}
+
   @media (prefers-reduced-motion:reduce){ *{animation:none !important; transition:none !important;} }
+  @media (prefers-reduced-motion:reduce){
+    #splash{animation:none; opacity:1; transition:opacity .35s linear;}
+    #splash .sp-layer{display:none;}
+    #splash .sp-heroT, #splash .sp-lockup{opacity:1; transform:none; translate:0 0; animation:none;}
+  }
 </style>
 </head>
 <body>
+  <!-- ================= INTRO SPLASH (one-shot, on load) ================= -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="m26" viewBox="1360.9 680.2 544.1 816.2"><path d="M 1360.867188 680.179688 L 1496.90625 680.179688 L 1496.90625 816.214844 L 1360.867188 816.214844 Z M 1360.867188 680.179688 "/><path d="M 1496.902344 680.179688 C 1572.035156 680.179688 1632.941406 741.085938 1632.941406 816.214844 L 1496.902344 816.214844 Z M 1496.902344 680.179688 "/><path d="M 1768.976562 680.179688 L 1768.976562 816.214844 L 1632.941406 816.214844 C 1632.941406 741.085938 1693.847656 680.179688 1768.976562 680.179688 "/><path d="M 1768.976562 680.179688 C 1844.109375 680.179688 1905.011719 741.085938 1905.011719 816.214844 L 1768.976562 816.214844 Z M 1768.976562 680.179688 "/><path d="M 1496.902344 816.214844 L 1496.902344 952.253906 L 1360.867188 952.253906 C 1360.867188 877.121094 1421.773438 816.214844 1496.902344 816.214844 "/><path d="M 1768.976562 816.214844 C 1844.109375 816.214844 1905.011719 877.121094 1905.011719 952.253906 L 1768.976562 952.253906 Z M 1768.976562 816.214844 "/><path d="M 1360.867188 952.253906 L 1496.90625 952.253906 L 1496.90625 1088.289062 L 1360.867188 1088.289062 Z M 1360.867188 952.253906 "/><path d="M 1496.90625 952.253906 L 1632.941406 952.253906 L 1632.941406 1088.289062 L 1496.90625 1088.289062 Z M 1496.90625 952.253906 "/><path d="M 1632.941406 952.253906 L 1768.976562 952.253906 L 1768.976562 1088.289062 L 1632.941406 1088.289062 Z M 1632.941406 952.253906 "/><path d="M 1768.976562 952.253906 L 1905.011719 952.253906 L 1905.011719 1088.289062 L 1768.976562 1088.289062 Z M 1768.976562 952.253906 "/><path d="M 1360.867188 1088.289062 L 1496.90625 1088.289062 L 1496.90625 1224.324219 L 1360.867188 1224.324219 Z M 1360.867188 1088.289062 "/><path d="M 1496.90625 1088.289062 L 1632.941406 1088.289062 L 1632.941406 1224.324219 L 1496.90625 1224.324219 Z M 1496.90625 1088.289062 "/><path d="M 1632.941406 1088.289062 L 1768.976562 1088.289062 L 1768.976562 1224.324219 C 1693.84375 1224.324219 1632.941406 1163.417969 1632.941406 1088.289062 Z M 1632.941406 1088.289062 "/><path d="M 1768.976562 1088.289062 L 1905.011719 1088.289062 C 1905.011719 1163.417969 1844.109375 1224.324219 1768.976562 1224.324219 Z M 1768.976562 1088.289062 "/><path d="M 1496.902344 816.214844 L 1632.941406 816.214844 C 1632.941406 891.347656 1572.035156 952.253906 1496.902344 952.253906 Z M 1496.902344 816.214844 "/><path d="M 1632.941406 816.214844 L 1768.976562 816.214844 L 1768.976562 952.253906 L 1632.941406 952.253906 Z M 1632.941406 816.214844 "/><path d="M 1496.902344 1360.363281 L 1496.902344 1496.398438 L 1360.867188 1496.398438 C 1360.867188 1421.265625 1421.773438 1360.363281 1496.902344 1360.363281 "/><path d="M 1768.976562 1360.363281 C 1844.109375 1360.363281 1905.011719 1421.265625 1905.011719 1496.398438 L 1768.976562 1496.398438 Z M 1768.976562 1360.363281 "/><path d="M 1496.90625 1360.363281 L 1632.941406 1360.363281 L 1632.941406 1496.398438 L 1496.90625 1496.398438 Z M 1496.90625 1360.363281 "/><path d="M 1632.941406 1360.363281 L 1768.976562 1360.363281 L 1768.976562 1496.398438 L 1632.941406 1496.398438 Z M 1632.941406 1360.363281 "/></symbol><symbol id="m26s" viewBox="1360.9 680.2 544.1 816.2"><path d="M 1360.867188 680.179688 L 1496.90625 680.179688 L 1496.90625 816.214844 L 1360.867188 816.214844 Z M 1360.867188 680.179688 "/><path d="M 1496.902344 680.179688 C 1572.035156 680.179688 1632.941406 741.085938 1632.941406 816.214844 L 1496.902344 816.214844 Z M 1496.902344 680.179688 "/><path d="M 1768.976562 680.179688 L 1768.976562 816.214844 L 1632.941406 816.214844 C 1632.941406 741.085938 1693.847656 680.179688 1768.976562 680.179688 "/><path d="M 1768.976562 680.179688 C 1844.109375 680.179688 1905.011719 741.085938 1905.011719 816.214844 L 1768.976562 816.214844 Z M 1768.976562 680.179688 "/><path d="M 1496.902344 816.214844 L 1496.902344 952.253906 L 1360.867188 952.253906 C 1360.867188 877.121094 1421.773438 816.214844 1496.902344 816.214844 "/><path d="M 1768.976562 816.214844 C 1844.109375 816.214844 1905.011719 877.121094 1905.011719 952.253906 L 1768.976562 952.253906 Z M 1768.976562 816.214844 "/><path d="M 1360.867188 952.253906 L 1496.90625 952.253906 L 1496.90625 1088.289062 L 1360.867188 1088.289062 Z M 1360.867188 952.253906 "/><path d="M 1496.90625 952.253906 L 1632.941406 952.253906 L 1632.941406 1088.289062 L 1496.90625 1088.289062 Z M 1496.90625 952.253906 "/><path d="M 1632.941406 952.253906 L 1768.976562 952.253906 L 1768.976562 1088.289062 L 1632.941406 1088.289062 Z M 1632.941406 952.253906 "/><path d="M 1768.976562 952.253906 L 1905.011719 952.253906 L 1905.011719 1088.289062 L 1768.976562 1088.289062 Z M 1768.976562 952.253906 "/><path d="M 1360.867188 1088.289062 L 1496.90625 1088.289062 L 1496.90625 1224.324219 L 1360.867188 1224.324219 Z M 1360.867188 1088.289062 "/><path d="M 1496.90625 1088.289062 L 1632.941406 1088.289062 L 1632.941406 1224.324219 L 1496.90625 1224.324219 Z M 1496.90625 1088.289062 "/><path d="M 1632.941406 1088.289062 L 1768.976562 1088.289062 L 1768.976562 1224.324219 C 1693.84375 1224.324219 1632.941406 1163.417969 1632.941406 1088.289062 Z M 1632.941406 1088.289062 "/><path d="M 1768.976562 1088.289062 L 1905.011719 1088.289062 C 1905.011719 1163.417969 1844.109375 1224.324219 1768.976562 1224.324219 Z M 1768.976562 1088.289062 "/><path d="M 1496.902344 816.214844 L 1632.941406 816.214844 C 1632.941406 891.347656 1572.035156 952.253906 1496.902344 952.253906 Z M 1496.902344 816.214844 "/><path d="M 1632.941406 816.214844 L 1768.976562 816.214844 L 1768.976562 952.253906 L 1632.941406 952.253906 Z M 1632.941406 816.214844 "/><path d="M 1496.902344 1360.363281 L 1496.902344 1496.398438 L 1360.867188 1496.398438 C 1360.867188 1421.265625 1421.773438 1360.363281 1496.902344 1360.363281 "/><path d="M 1768.976562 1360.363281 C 1844.109375 1360.363281 1905.011719 1421.265625 1905.011719 1496.398438 L 1768.976562 1496.398438 Z M 1768.976562 1360.363281 "/><path d="M 1496.90625 1360.363281 L 1632.941406 1360.363281 L 1632.941406 1496.398438 L 1496.90625 1496.398438 Z M 1496.90625 1360.363281 "/><path d="M 1632.941406 1360.363281 L 1768.976562 1360.363281 L 1768.976562 1496.398438 L 1632.941406 1496.398438 Z M 1632.941406 1360.363281 "/><rect x="1462" y="680.2" width="342" height="816.2"/></symbol></svg>
+
+  <div id="splash" role="dialog" aria-label="Opepen Art World Cup intro" title="Tap to skip">
+    <svg class="sp-layer" style="--fill:#d40c19;animation-delay:1.70s" aria-hidden="true"><use href="#m26"/></svg><svg class="sp-layer" style="--fill:#3ab54a;animation-delay:1.78s" aria-hidden="true"><use href="#m26"/></svg><svg class="sp-layer" style="--fill:#f4dc18;animation-delay:1.86s" aria-hidden="true"><use href="#m26"/></svg><svg class="sp-layer" style="--fill:#05a1f4;animation-delay:1.94s" aria-hidden="true"><use href="#m26"/></svg><svg class="sp-layer" style="--fill:#ffffff;animation-delay:2.02s" aria-hidden="true"><use href="#m26"/></svg><svg class="sp-layer" style="--fill:#000000;animation-delay:2.10s" aria-hidden="true"><use href="#m26s"/></svg>
+    <div class="sp-stage">
+      <div class="sp-lockgroup">
+        <span class="sp-heroT"><svg viewBox="0 0 60.98 121.89" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#b18336" d="M52.02,52.02l-21.51,21.51v17.89h30.47V30.51h-.04c0,7.79-2.98,15.57-8.92,21.51l.04.04-.04-.04h0Z"/><rect fill="#014127" x="30.51" y="91.42" width="30.47" height="30.47"/><path fill="#9b6c2c" d="M30.51,73.57v-.04l-.04.04-21.55-21.55c-1.32-1.32-2.48-2.72-3.51-4.2-.13-.18-.25-.37-.38-.56-.12-.18-.23-.36-.35-.54-.39-.61-.75-1.23-1.08-1.86-.12-.21-.23-.43-.34-.65-.89-1.77-1.61-3.61-2.13-5.49-.62-2.21-.99-4.48-1.1-6.76v59.44h30.47v-17.85Z"/><rect fill="#2b5b48" x=".04" y="91.42" width="30.47" height="30.47"/><path fill="#e3ca86" d="M52.06,8.96s-.02-.03-.04-.04h0c-11.9-11.9-31.19-11.9-43.09,0l21.58,21.58,21.55-21.55Z"/><polygon fill="#a7792b" points="30.51 30.51 30.43 30.51 8.92 52.02 30.47 73.57 30.51 73.53 52.02 52.02 52.02 52.02 52.02 52.02 30.51 30.51 30.51 30.51"/><path fill="#8e6019" d="M1.13,38.73c.53,1.88,1.24,3.72,2.13,5.49.11.22.22.43.34.65.34.63.7,1.25,1.08,1.86.11.18.23.36.35.54.12.19.25.37.38.56,1.03,1.48,2.19,2.88,3.51,4.2l21.51-21.51h.07S8.92,8.93,8.92,8.93h0C2.59,15.26-.37,23.68.04,31.97H.04c.11,2.28.48,4.55,1.1,6.76Z"/><path fill="#472808" d="M30.51,30.51l21.51,21.51c5.94-5.94,8.92-13.72,8.92-21.51,0-7.79-2.95-15.59-8.89-21.55l-21.55,21.55h0Z"/></svg></span>
+        <div class="sp-lockup">
+          <h1>Opepen Art World Cup</h1>
+          <p>Your Gut Knows. Now Prove It.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <header class="wrap">
     <div class="eyebrow">2026</div>
     <h1><a href="#/">Opepen Art World Cup</a></h1>
     <nav class="top" id="nav">
-      <a href="#/" data-p="play">Play</a>
+      <a href="#/" data-p="home">Home</a>
+      <a href="#/play" data-p="play">Play</a>
       <a href="#/teams" data-p="teams">Teams</a>
       <a href="#/bracket" data-p="bracket">Bracket</a>
       <a href="#/standings" data-p="standings">Standings</a>
@@ -359,6 +463,50 @@
       <a href="#/profile" data-p="profile">Profile</a>
     </nav>
   </header>
+
+  <!-- ================= HOME ================= -->
+  <section data-page="home" hidden class="page home">
+    <div class="home-hero">
+      <div class="home-eyebrow">The Art World Cup · 2026</div>
+      <h2 class="home-hh">Your Gut Knows. Now Prove It.</h2>
+      <p class="home-sub">40 artworks. 90-second matches. The artwork people love fastest wins. No critics. No algorithms.</p>
+      <a class="home-cta" href="#/play">Enter the Tournament →</a>
+    </div>
+
+    <hr class="home-rule">
+
+    <div class="home-block home-problem">
+      <p class="home-lead">Every art ranking you've ever seen was decided by critics, committees, or clicks.</p>
+      <p class="home-lead-sub">This one is decided by your nervous system.</p>
+    </div>
+
+    <div class="home-block">
+      <div class="home-seclbl">How It Works</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div><h3>Two artworks appear</h3><p>Pick the one that pulls you in. You have 90 seconds before the match closes.</p></div></div>
+        <div class="step"><div class="step-n">2</div><div><h3>Your vote becomes a shot on goal</h3><p>Vote fast and your shot lands in the center. Hesitate and it drifts wide — change your mind too often and it turns into an own goal.</p></div></div>
+        <div class="step"><div class="step-n">3</div><div><h3>The instinctive choice advances</h3><p>40 artworks enter. Round by round, one lifts the Cup.</p></div></div>
+      </div>
+    </div>
+
+    <div class="home-block">
+      <div class="home-seclbl">What Changes</div>
+      <div class="changes">
+        <div class="change"><h3>Paralysis → Decision</h3><p>The 90-second clock forces the honest answer your brain already has.</p></div>
+        <div class="change"><h3>Critic → Participant</h3><p>Your instinct doesn't just register — it scores, it misses, it shapes the outcome.</p></div>
+        <div class="change"><h3>Opinion → Evidence</h3><p>Match stats reveal exactly how fast and how confidently the world chose each piece.</p></div>
+        <div class="change"><h3>Popularity → Conviction</h3><p>The winner isn't the most-clicked artwork. It's the one people reached for first.</p></div>
+      </div>
+    </div>
+
+    <div class="home-block home-final">
+      <p class="home-lead">Stop Overthinking Art.<br>Trust the First Pull.</p>
+      <div class="home-final-cta">
+        <a class="home-cta" href="#/play">Cast Your Vote →</a>
+        <a class="home-cta ghost" href="#/bracket">See the Bracket</a>
+      </div>
+    </div>
+  </section>
 
   <!-- ================= PLAY ================= -->
   <section data-page="play">
@@ -403,6 +551,12 @@
           </button>
         </div>
       </div>
+    </div>
+
+    <div class="scoretime" id="scoretime">
+      <span class="st-l" id="st-phase">2nd Half</span>
+      <span class="st-c" id="st-clock">50'</span>
+      <span class="st-r" id="st-hint">Shoot!</span>
     </div>
 
     <div class="scoreband" id="scoreband">
@@ -570,7 +724,7 @@
   </div>
 
   <nav class="tabbar" aria-label="Primary">
-    <a href="#/" data-p="play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="7,4 20,12 7,20"/></svg><span>Play</span></a>
+    <a href="#/play" data-p="play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="7,4 20,12 7,20"/></svg><span>Play</span></a>
     <a href="#/teams" data-p="teams"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg><span>Teams</span></a>
     <a href="#/bracket" data-p="bracket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5h5v5H4zM4 14h5v5H4zM9 7.5h5v9H9M14 12h6"/></svg><span>Bracket</span></a>
     <a href="#/standings" data-p="standings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Table</span></a>
@@ -723,6 +877,14 @@ let ROUNDS = [];
 const LS='owc:voted:v1';
 function loadVoted(){ try{ const r=localStorage.getItem(LS); if(r) return new Map(Object.entries(JSON.parse(r))); }catch(e){} return new Map(); }
 function saveVoted(){ try{ localStorage.setItem(LS, JSON.stringify(Object.fromEntries(VOTED))); }catch(e){} }
+
+/* ---------- NEW: per-match shot record (decision speed + vote changes) ----------
+   SHOTS key = match key -> { side:'h'|'a', changes:Number, ms:Number }
+   changes counts how many times the vote was CHANGED (>2 => own goal). */
+const SHOTS_LS='owc:shots:v1';
+let SHOTS=(()=>{ try{ return JSON.parse(localStorage.getItem(SHOTS_LS))||{}; }catch(e){ return {}; } })();
+function saveShots(){ try{ localStorage.setItem(SHOTS_LS, JSON.stringify(SHOTS)); }catch(e){} }
+const isOwnGoal=rec=> !!rec && rec.changes>2;   // 3rd change and beyond
 const keyOf=(a,b)=>{ const x=teamId(a),y=teamId(b); return Math.min(x,y)+'-'+Math.max(x,y); };
 function baseFromCrowd(a,b){ const [ch,ca]=crowd(a,b), lo=Math.min(teamId(a),teamId(b)); return (teamId(a)===lo)?{a:ch,b:ca}:{a:ca,b:ch}; }
 function talliesFor(a,b){
@@ -751,6 +913,7 @@ function auditTP(){
   const c=clock(), done=completedCount(c);
   for(let j=0;j<done;j++){ const p=pairAtFlat(j); if(!p) continue; const [a,b]=p, k=keyOf(a,b);
     if(!VOTED.has(k)) continue;
+    if(isOwnGoal(SHOTS[k])) continue;   // own goal: no win bonus
     const side=pickedSideOf(a,b), w=winnerIdx(a,b);
     if((side==='h'&&w===a)||(side==='a'&&w===b)) addTP('win:'+k,100);
   }
@@ -787,11 +950,43 @@ function resolveWagers(){
   if(changed) saveWagers();
 }
 
-/* ---------- NEW: deterministic shot cell (0..7, hash of match key + side) ---------- */
-function shotCellFromSeed(seed, salt){
-  let h=0; const s=String(seed)+'|'+(salt||'');
-  for(let i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))|0; }
-  h=Math.abs(h); return {col:h%8, row:Math.floor(h/8)%8};
+/* ---------- NEW: deterministic shot placement from decision speed + changes ----------
+   Returns {x,y,own} as fractions (0..1) of the chosen HALF, where the ball CENTER lands.
+   - fast decision (<3s): central & high toward the goal (a clean strike)
+   - medium (3-10s): on target but drifting off-centre
+   - slow (>10s): wide toward the post / edge
+   - each vote change nudges the shot further off-target
+   - >2 changes: OWN GOAL — ball is placed in the voter's OWN net (outer edge).
+   Deterministic given (matchKey, side, ms-bucket, changeCount). */
+function shotSeedHash(s){ let h=2166136261>>>0; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
+function shotPlacement(mk, side, ms, changes){
+  ms=+ms||0; changes=+changes||0;
+  const bucket = ms<3000 ? 'fast' : (ms<10000 ? 'med' : 'slow');
+  const own = changes>2;
+  const h=shotSeedHash(mk+'|'+side+'|'+bucket+'|'+changes);
+  const j1=((h & 0xff)/255)-0.5;              // -0.5..0.5
+  const j2=(((h>>8) & 0xff)/255)-0.5;
+  /* target goal is on the chosen half's OUTER edge: home->left(x≈0.08), away->right(x≈0.92).
+     the ball travels toward that goal; y is vertical placement on the goal mouth. */
+  const goalX = side==='h' ? 0.10 : 0.90;
+  const centreX = side==='h' ? 0.30 : 0.70;   // "high on target" sits just inside the box
+  let x, y, spread;
+  if(bucket==='fast'){ x=goalX+(centreX-goalX)*0.15; spread=0.06; }
+  else if(bucket==='med'){ x=goalX+(centreX-goalX)*0.45; spread=0.16; }
+  else { x=goalX+(centreX-goalX)*0.85; spread=0.30; }        // slow drifts away/wide
+  y = 0.5 + j1*spread*2;
+  x = x + j2*spread;
+  /* each change nudges further off-target (toward the wide posts) */
+  const nudge = Math.min(changes,2)*0.12;
+  y = 0.5 + (y-0.5)*(1+nudge);
+  x = x + (side==='h'? -nudge*0.35 : nudge*0.35);
+  if(own){
+    /* back of their OWN net: outer edge, roughly centred on the goal mouth */
+    x = side==='h' ? 0.04 : 0.96;
+    y = 0.5 + j1*0.18;
+  }
+  x=Math.max(0.05,Math.min(0.95,x)); y=Math.max(0.12,Math.min(0.88,y));
+  return {x,y,own};
 }
 
 /* ---------- NEW: match date (from START clock anchor) ---------- */
@@ -866,6 +1061,8 @@ function renderMatch(c){
   $('statusbar').style.display=''; $('commentary').style.display='';
   const [a,b]=pairAtFlat(c.idx), mk=keyOf(a,b);
   if(mk!==CUR_MK){ CUR_MK=mk; paintMarquees(); }
+  /* start the decision-time clock the first time this live match is shown */
+  if(isLive(c) && _matchOpen.idx!==c.idx){ _matchOpen={idx:c.idx, t:Date.now()}; }
   paint(cellsH, compose('home',a,PIT[pitchForMatch(a,b)])); paint(cellsA, compose('away',b,PIT[pitchForMatch(a,b)]));
   labH.textContent=teamName(a); labA.textContent=teamName(b);
   seedlbl.textContent=seedOf(a)+' vs '+seedOf(b);
@@ -892,11 +1089,20 @@ function renderMatch(c){
   else if(c.phase==='ht') sc.textContent='HALFTIME';
   else sc.textContent='KICKOFF';
 
+  /* stacked TIME box directly above the team score box */
+  updateScoreTime(c, picked);
+
   /* shot overlay on chosen side (feature 2) */
   const sh=$('shot-h'), sa=$('shot-a');
   sh.hidden=true; sa.hidden=true;
-  if(picked){ const ov=picked==='h'?sh:sa, cell=shotCellFromSeed(mk,picked), sp=ov.firstElementChild;
-    sp.style.left=(cell.col/8*100)+'%'; sp.style.top=(cell.row/8*100)+'%'; ov.hidden=false; }
+  if(picked){
+    const rec=SHOTS[mk]||{side:picked, changes:0, ms:0};
+    const p=shotPlacement(mk, picked, rec.ms, rec.changes);
+    const ov=picked==='h'?sh:sa, sp=ov.firstElementChild;
+    sp.style.left=(p.x*100)+'%'; sp.style.top=(p.y*100)+'%';
+    sp.style.background=p.own ? '#e0332b' : 'var(--gold-hi)';   // own goal reads red
+    ov.hidden=false;
+  }
 
   /* per-match FT winner centered + confetti (features 6 & 7) */
   const fw=$('ftwin');
@@ -930,9 +1136,24 @@ function fireConfetti(seed){
   setTimeout(()=>wrap.remove(), 3600);
 }
 
+/* NEW: the stacked TIME box above the team score box */
+const stimePhase=$('st-phase'), stimeClock=$('st-clock'), stimeHint=$('st-hint'), scoretimeEl=$('scoretime');
+function updateScoreTime(c, picked){
+  if(!scoretimeEl) return;
+  const live=isLive(c), ft=c.phase==='ft';
+  scoretimeEl.className='scoretime '+(live?'live':(ft?'ft':(c.phase==='ht'?'ht':'ko')));
+  let phase='', clock='', hint='';
+  if(c.phase==='ko'){ phase='Pre-Match'; clock='KICKOFF'; hint='Kickoff in '+Math.ceil(c.left)+'s'; }
+  else if(c.phase==='h1'){ phase='1st Half'; clock=c.min+"'"; hint=picked?'Shoot!':'Make your pick'; }
+  else if(c.phase==='ht'){ phase='Halftime'; clock='HALFTIME'; hint='Back in '+Math.ceil(c.left)+'s'; }
+  else if(c.phase==='h2'){ phase='2nd Half'; clock=c.min+"'"; hint=picked?'Shoot!':'Make your pick'; }
+  else if(ft){ phase='Full Time'; clock='FULL TIME'; hint='Next in '+Math.ceil(c.left)+'s'; }
+  stimePhase.textContent=phase; stimeClock.textContent=clock; stimeHint.textContent=hint;
+}
 function updateClockLine(c){
   if(c.phase==='end'){ clockline.textContent='TOURNAMENT COMPLETE'; return; }
   const [a,b]=pairAtFlat(c.idx), picked=VOTED.has(keyOf(a,b));
+  updateScoreTime(c, picked);
   const P={ko:'KICKOFF IN '+Math.ceil(c.left)+'S',
            h1:"1ST HALF · "+c.min+"' · "+(picked?'TAP TO CHANGE PICK':'MAKE YOUR PICK'),
            ht:'HALFTIME · BACK IN '+Math.ceil(c.left)+'S',
@@ -968,10 +1189,14 @@ function commFor(c){
   }
 }
 /* commentary reaction on your vote / change of vote */
-function commVote(a,b,side,secs,changed){
+function commVote(a,b,side,secs,changed,own){
   const nm=side==='h'?teamName(a):teamName(b);
-  if(changed) setComm('Second thoughts! <b>'+nm+'</b> get the nod now — a scuffed change of heart.');
-  else setComm('<b>'+nm+'</b> gets the nod — a '+secs.toFixed(1)+'s call, decisive.');
+  const other=side==='h'?teamName(b):teamName(a);
+  if(own) setComm('<b>Own goal!</b> '+nm+' back their pick one too many times — the shot rolls into their own net and counts for <b>'+other+'</b>.');
+  else if(changed) setComm('Second thoughts! <b>'+nm+'</b> get the nod now — a scuffed change of heart.');
+  else if(secs<3) setComm('<b>'+nm+'</b> struck clean — a '+secs.toFixed(1)+'s call, buried in the top corner.');
+  else if(secs<10) setComm('<b>'+nm+'</b> gets the nod — a '+secs.toFixed(1)+'s call, on target but not centred.');
+  else setComm('<b>'+nm+'</b> after a long look — '+secs.toFixed(1)+'s of hesitation drags it wide.');
   COMM_STATE='voted:'+keyOf(a,b);
 }
 
@@ -989,6 +1214,9 @@ function showChamp(){
 
 /* ---------- voting (live window only; switchable while live) ---------- */
 let _matchOpen={idx:-1, t:0};
+const otherS=s=> s==='a'?'b':'a';
+/* the side a vote actually SCORES for: own goal (>2 changes) flips to the opponent */
+function effectiveS(k, s){ return isOwnGoal(SHOTS[k]) ? otherS(s) : s; }
 function vote(side){
   const c=clock(); if(!isLive(c)) return;
   const [a,b]=pairAtFlat(c.idx), k=keyOf(a,b);
@@ -998,32 +1226,49 @@ function vote(side){
   const prev=VOTED.get(k);
   if(prev===s) return;                    // same pick, nothing to do
   const changed=VOTED.has(k);
-  if(changed){                            // change vote: decrement old side
-    TALLY[k][prev]=Math.max(0,(TALLY[k][prev]||1)-1);
-    if(ONLINE){ db.collection('matchups').doc(k).set({[prev]:INC(-1)},{merge:true}).catch(()=>{}); }
+  /* remove the previously-applied (effective) contribution before re-applying */
+  const prevEff = prev!=null ? effectiveS(k, prev) : null;
+  if(changed && prevEff){
+    TALLY[k][prevEff]=Math.max(0,(TALLY[k][prevEff]||1)-1);
+    if(ONLINE){ db.collection('matchups').doc(k).set({[prevEff]:INC(-1)},{merge:true}).catch(()=>{}); }
   }
-  TALLY[k][s]=(TALLY[k][s]||0)+1;
-  VOTED.set(k,s); saveVoted(); if(!changed) addTP('vote:'+k,25);
-  const secs=(Date.now()-_matchOpen.t)/1000;
-  ROUNDS=buildRounds(); renderMatch(c); updateClockLine(c); commVote(a,b,side,secs,changed);
-  if(ONLINE){ db.collection('matchups').doc(k).set({team_a:lo, team_b:Math.max(teamId(a),teamId(b)), [s]:INC(1)},{merge:true}).catch(()=>{}); }
+  /* update the per-match shot record: decision speed (ms) + running change count */
+  const ms=Date.now()-_matchOpen.t;
+  const prevRec=SHOTS[k]||{side, changes:0, ms};
+  const changes = changed ? (prevRec.changes||0)+1 : 0;
+  SHOTS[k]={side, changes, ms}; saveShots();
+  const own=isOwnGoal(SHOTS[k]);
+  const eff=own?otherS(s):s;             // effective scoring side after this vote
+  TALLY[k][eff]=(TALLY[k][eff]||0)+1;
+  VOTED.set(k,s); saveVoted();
+  /* taste points: +25 for a first pick; no TP for an own goal */
+  if(!changed && !own) addTP('vote:'+k,25);
+  if(own) dropTP('vote:'+k);             // claw back the TP if it turned into an own goal
+  const secs=ms/1000;
+  ROUNDS=buildRounds(); renderMatch(c); updateClockLine(c); commVote(a,b,side,secs,changed,own);
+  if(ONLINE){ db.collection('matchups').doc(k).set({team_a:lo, team_b:Math.max(teamId(a),teamId(b)), [eff]:INC(1)},{merge:true}).catch(()=>{}); }
 }
 function undo(){
   const c=clock(); if(!isLive(c)) return;
   const [a,b]=pairAtFlat(c.idx), k=keyOf(a,b);
   if(!VOTED.has(k)) return;
-  const s=VOTED.get(k); if(TALLY[k]) TALLY[k][s]=Math.max(0,(TALLY[k][s]||1)-1);
+  const s=VOTED.get(k), eff=effectiveS(k,s);
+  if(TALLY[k]) TALLY[k][eff]=Math.max(0,(TALLY[k][eff]||1)-1);
   VOTED.delete(k); saveVoted(); dropTP('vote:'+k);
+  delete SHOTS[k]; saveShots();          // reset the shot/change record for this match
   ROUNDS=buildRounds(); renderMatch(c); updateClockLine(c);
-  if(ONLINE){ db.collection('matchups').doc(k).set({[s]:INC(-1)},{merge:true}).catch(()=>{}); }
+  if(ONLINE){ db.collection('matchups').doc(k).set({[eff]:INC(-1)},{merge:true}).catch(()=>{}); }
 }
 function resetVotes(){
   for(const [k,s] of [...VOTED.entries()]){
-    if(TALLY[k]) TALLY[k][s]=Math.max(0,(TALLY[k][s]||1)-1);
+    const eff=effectiveS(k,s);
+    if(TALLY[k]) TALLY[k][eff]=Math.max(0,(TALLY[k][eff]||1)-1);
     dropTP('vote:'+k); dropTP('win:'+k);
-    if(ONLINE) db.collection('matchups').doc(k).set({[s]:INC(-1)},{merge:true}).catch(()=>{});
+    if(ONLINE) db.collection('matchups').doc(k).set({[eff]:INC(-1)},{merge:true}).catch(()=>{});
   }
-  VOTED.clear(); saveVoted(); ROUNDS=buildRounds();
+  VOTED.clear(); saveVoted();
+  SHOTS={}; saveShots();                 // reset all shot/change counters
+  ROUNDS=buildRounds();
   const c=clock(); renderMatch(c); renderProfile();
 }
 
@@ -1243,10 +1488,10 @@ $('wg-place').addEventListener('click',()=>{
 
 /* ---------- router ---------- */
 const PAGERENDER={teams:renderTeams,bracket:renderBracket,standings:renderStandings,earn:renderEarn,profile:renderProfile};
-let page='play';
+let page='home';
 function route(){
-  const h=(location.hash||'#/').slice(2)||'play';
-  page=['play','teams','bracket','standings','earn','rules','profile'].includes(h)?h:'play';
+  const h=(location.hash||'#/').slice(2)||'home';
+  page=['home','play','teams','bracket','standings','earn','rules','profile'].includes(h)?h:'home';
   document.querySelectorAll('section[data-page]').forEach(s=>{ s.hidden=s.dataset.page!==page; });
   document.querySelectorAll('nav.top a').forEach(a=>a.classList.toggle('on',a.dataset.p===page));
   if(PAGERENDER[page]) PAGERENDER[page]();
@@ -1284,6 +1529,21 @@ window.addEventListener('resize', snapHeights);
 window.addEventListener('load', snapHeights);
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(snapHeights);
 snapHeights();
+
+/* ---------- NEW: one-shot intro splash (feature 6) ---------- */
+(function splashOnce(){
+  const sp=document.getElementById('splash'); if(!sp) return;
+  let done=false;
+  const dismiss=()=>{ if(done) return; done=true;
+    sp.classList.add('fade'); sp.style.pointerEvents='none';
+    setTimeout(()=>{ sp.remove(); }, 700);
+  };
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* auto-dismiss timing: full animation ~3.6s, or a short static hold under reduced motion */
+  setTimeout(dismiss, reduced ? 800 : 3600);
+  sp.addEventListener('click', dismiss);
+  sp.addEventListener('touchstart', dismiss, {passive:true});
+})();
 
 /* ---------- background-grid "crowd flashes" (hover + ambient) ---------- */
 (function gridFX(){
