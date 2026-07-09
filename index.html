@@ -107,6 +107,64 @@
   .rules p{font-size:14px;line-height:1.65;color:#c7c7c7;margin:0 0 12px}
   .rules b{color:var(--gold-hi)}
 
+  /* ---------- NEW: go-live / join / countdown (feature 4) ---------- */
+  .launch-lead{font-size:15px;line-height:1.6;color:#d2d2d2;margin:0 0 18px}
+  .launch-lead b{color:var(--gold-hi)}
+  .join-row{margin:6px 0 16px}
+  .join-count{font-family:var(--mono);font-size:13px;letter-spacing:.08em;color:#cfcfcf;margin-bottom:8px}
+  .join-count #join-n,.join-count #join-n2{font-weight:600;color:var(--gold-hi);font-size:20px;font-variant-numeric:tabular-nums}
+  .join-sub{color:#7a7a7a;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+  .join-bar{position:relative;height:8px;border-radius:5px;background:#1c1a12;overflow:hidden}
+  .join-bar i{position:absolute;inset:0 auto 0 0;width:0;border-radius:5px;
+    background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi));transition:width .5s var(--ease)}
+  .launch-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+  .countdown{margin-top:20px;text-align:center;border-top:1px solid var(--board-edge);padding-top:18px}
+  .cd-lbl{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--green)}
+  .cd-clock{font-family:var(--mono);font-weight:600;font-size:clamp(30px,6vw,52px);color:#fff;
+    letter-spacing:.04em;font-variant-numeric:tabular-nums;margin-top:6px}
+
+  /* ---------- NEW: Play gate (locked / pre-kickoff) ---------- */
+  .playgate{width:calc(18*var(--u));max-width:100%;margin:0 auto 14px;background:var(--board);
+    border:1px solid #242424;padding:clamp(24px,4vw,44px) clamp(18px,2.4vw,34px);text-align:center;}
+  .playgate .pg-inner{max-width:520px;margin:0 auto;}
+  .playgate .pg-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-mid);margin-bottom:10px;}
+  .playgate .pg-head{margin:0;font-weight:700;letter-spacing:-.03em;line-height:1.08;
+    font-size:clamp(22px,3.4vw,38px);color:var(--gold-hi);}
+  .playgate .pg-pre{margin-top:22px;}
+  .playgate .join-count #join-n3{font-weight:600;color:var(--gold-hi);font-size:20px;font-variant-numeric:tabular-nums;}
+  /* dim the live stage/scoreboard behind the gate when locked/pre */
+  section[data-page="play"].gated .statusbar,
+  section[data-page="play"].gated .stage,
+  section[data-page="play"].gated .commentary,
+  section[data-page="play"].gated .matchstats,
+  section[data-page="play"].gated .deck{opacity:.16;filter:grayscale(1);pointer-events:none;}
+
+  /* ---------- NEW: demo page (feature 5) ---------- */
+  .demo-lead{font-size:14px;line-height:1.6;color:#c7c7c7;margin:0 0 18px}
+  .demo-lead b{color:var(--gold-hi)}
+  .demo-pitch{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:clamp(8px,2vw,20px);margin:8px 0}
+  .demo-side{position:relative;background:var(--board);border:1px solid #242424;padding:10px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:8px;-webkit-tap-highlight-color:transparent;transition:border-color .2s,filter .3s}
+  .demo-side:hover{border-color:var(--gold-lo)}
+  .demo-side img{width:100%;aspect-ratio:1;image-rendering:pixelated;display:block}
+  .demo-side .ds-lbl{font-family:var(--mono);font-size:13px;color:#cfcfcf;letter-spacing:.06em}
+  .demo-side.win{border-color:var(--gold-hi)}
+  .demo-side.lose{filter:grayscale(.85) brightness(.55)}
+  .demo-vs{font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:#5a5a5a}
+  .demo-shot{position:absolute;width:13%;height:13%;border-radius:50%;background:var(--gold-hi);
+    transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 12px rgba(243,207,38,.5)}
+  .demo-score{text-align:center;font-family:var(--mono);font-weight:800;font-size:clamp(28px,5vw,42px);
+    color:#fff;font-variant-numeric:tabular-nums;margin:14px 0 6px}
+  .demo-score .ds-sep{color:#5a5a5a;margin:0 .3em}
+  .demo-comm{font-family:var(--mono);font-size:13px;line-height:1.5;color:#c7c7c7;text-align:center;min-height:1.4em;margin-bottom:12px}
+  .demo-comm b{color:var(--gold-hi)}
+  .demo-cta{display:flex;justify-content:center;margin-bottom:6px}
+
+  /* ---------- NEW: share-to-earn (feature 6) ---------- */
+  .sh-code{font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:.18em;color:var(--gold-hi);
+    background:#0a0a0a;border:1px dashed #3a3322;padding:12px;text-align:center;margin-bottom:6px}
+  .sh-note{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--green);margin-top:10px;min-height:1.2em}
+
   /* ---------- STAGE (unchanged from the prototype) ---------- */
   .stage{position:relative; width:calc(18*var(--u)); max-width:100%; margin:0 auto;
     display:grid; grid-template-columns:repeat(18,var(--u)); grid-auto-rows:var(--u); justify-content:center;}
@@ -253,13 +311,17 @@
     .tabbar a svg{width:20px; height:20px; display:block}
     .tabbar a.on{color:var(--gold-hi)}
     body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
-    header{margin-bottom:4px}
+    /* CHANGE 3: comfortable breathing room below the header on mobile */
+    header{margin-bottom:clamp(20px,6vw,34px)}
     .eyebrow{display:none}
     h1{font-size:clamp(22px,7vw,30px)}
     .hint{display:none}
     .matchstats{width:calc(18*var(--u))}
     .panel{padding:14px}
     .kv-hero{width:100%}
+    /* CHANGE 9: score boxes span the full field width on mobile (match .pitch 2/18) */
+    .scoretime{grid-column:2/18;}
+    .scoreband{grid-column:2/18;}
   }
   @media (max-width:560px){ .bars{max-width:100%} .srow{grid-template-columns:42px 1fr 42px; gap:10px} }
 
@@ -276,8 +338,10 @@
   @keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.2}}
 
   /* ---------- NEW: signboard edit button ---------- */
-  .mq-edit{position:absolute; top:2px; right:2px; z-index:20; width:22px; height:22px; line-height:20px;
+  /* CHANGE 7: hidden for everyone; only shown when the owner flag is set on <body> */
+  .mq-edit{display:none; position:absolute; top:2px; right:2px; z-index:20; width:22px; height:22px; line-height:20px;
     text-align:center; font-size:12px; background:rgba(7,7,7,.85); color:#8a8a8a; border:1px solid #2a2a2a; cursor:pointer; padding:0;}
+  body.owner .mq-edit{display:block;}
   .mq-edit:hover{color:#fff; border-color:#444;}
   .board .ticker.mq-img, .board .vstrip.mq-img{background-repeat:repeat; background-position:center; will-change:transform;}
 
@@ -372,7 +436,8 @@
   .home-cta.ghost{background:transparent;color:var(--gold-hi);border:1px solid var(--gold-lo)}
   .home-cta.ghost:hover{background:rgba(167,121,43,.1);color:#fff}
   .home-rule{width:100%;max-width:520px;border:0;border-top:1px solid var(--board-edge);margin:clamp(24px,3.5vw,44px) auto 0}
-  .home-block{width:100%;padding:clamp(30px,5vw,58px) 0}
+  /* CHANGE 2: more vertical breathing room between home sections */
+  .home-block{width:100%;padding:clamp(46px,7vw,86px) 0;margin:clamp(8px,1.5vw,20px) 0}
   .home-lead{margin:0 auto;font-weight:700;letter-spacing:-.02em;line-height:1.14;font-size:clamp(23px,3.4vw,40px);color:var(--gold);max-width:24ch}
   .home-lead-sub{margin:12px auto 0;color:var(--muted);font-size:clamp(13px,1.2vw,16px)}
   .home-seclbl{font-family:var(--mono);font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-mid);margin-bottom:clamp(16px,2vw,26px)}
@@ -386,7 +451,20 @@
   .change{background:var(--board);border:1px solid var(--board-edge);border-radius:8px;padding:18px}
   .change h3{margin:0 0 6px;font-size:14px;font-weight:700;color:var(--gold-hi)}
   .change p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
-  .home-final{padding:clamp(34px,6vw,72px) 0}
+  .home-final{padding:clamp(50px,8vw,96px) 0}
+  /* CHANGE 1: full-width scrolling team-kit marquee above How It Works */
+  .kit-marquee{width:100vw;max-width:100vw;align-self:center;position:relative;overflow:hidden;
+    -webkit-mask:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);
+            mask:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);}
+  .kit-marquee .kit-track{position:static;height:auto;transform:none;display:flex;align-items:center;width:max-content;gap:clamp(12px,1.6vw,22px);
+    animation:kitMar 42s linear infinite;will-change:transform;}
+  .kit-marquee:hover .kit-track{animation-play-state:paused;}
+  @keyframes kitMar{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .kit-tile{flex:none;display:flex;flex-direction:column;align-items:center;gap:5px;}
+  .kit-tile img{width:clamp(46px,6vw,76px);height:clamp(46px,6vw,76px);image-rendering:pixelated;
+    border:1px solid #242424;display:block;}
+  .kit-tile .kt-n{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:#7a7a7a;}
+  @media (prefers-reduced-motion:reduce){ .kit-marquee .kit-track{animation-duration:180s;} }
   .home-final-cta{margin-top:22px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
   @media(max-width:560px){ .changes{grid-template-columns:1fr} .home-hh{font-size:clamp(30px,9vw,42px)} }
 
@@ -455,6 +533,7 @@
     <nav class="top" id="nav">
       <a href="#/" data-p="home">Home</a>
       <a href="#/play" data-p="play">Play</a>
+      <a href="#/demo" data-p="demo">Demo</a>
       <a href="#/teams" data-p="teams">Teams</a>
       <a href="#/bracket" data-p="bracket">Bracket</a>
       <a href="#/standings" data-p="standings">Standings</a>
@@ -469,7 +548,10 @@
     <div class="home-hero">
       <h2 class="home-hh">Your Gut Knows. Now Prove It.</h2>
       <p class="home-sub">40 artworks. 90-second matches. The artwork people love fastest wins. No critics. No algorithms.</p>
-      <a class="home-cta" href="#/play">Enter the Tournament →</a>
+      <div class="home-final-cta">
+        <a class="home-cta" href="#/play">Enter the Tournament →</a>
+        <a class="home-cta ghost" href="#/demo">Try the demo</a>
+      </div>
     </div>
 
     <hr class="home-rule">
@@ -478,6 +560,8 @@
       <p class="home-lead">Every art ranking you've ever seen was decided by critics, committees, or clicks.</p>
       <p class="home-lead-sub">This one is decided by your nervous system.</p>
     </div>
+
+    <div class="kit-marquee" id="kit-marquee" aria-hidden="true"><div class="kit-track" id="kit-track"></div></div>
 
     <div class="home-block">
       <div class="home-seclbl">How It Works</div>
@@ -509,6 +593,25 @@
 
   <!-- ================= PLAY ================= -->
   <section data-page="play">
+  <!-- Gate panel: shown when the tournament hasn't started (locked) or is counting down (pre) -->
+  <div class="playgate" id="playgate" hidden>
+    <div class="pg-inner">
+      <div class="pg-eyebrow" id="pg-eyebrow">Not kicked off yet</div>
+      <h2 class="pg-head" id="pg-head">The Cup kicks off once 80 join</h2>
+      <div class="pg-pre" id="pg-pre" hidden>
+        <div class="cd-lbl">First match kicks off in</div>
+        <div class="cd-clock" id="pg-clock">00:00:00</div>
+      </div>
+      <div class="join-row" style="margin-top:18px">
+        <div class="join-count"><span id="join-n3">0</span> <span class="join-sub">/ 80 joined</span></div>
+        <div class="join-bar"><i id="join-bar-i3"></i></div>
+      </div>
+      <div class="launch-cta" style="justify-content:center;margin-top:16px">
+        <button class="home-cta" id="join-btn3">Join the Cup</button>
+        <a class="btn" href="#/demo" style="align-self:center">Try the demo</a>
+      </div>
+    </div>
+  </div>
   <div class="statusbar" id="statusbar">
     <span class="sb-l" id="sb-round"></span>
     <span class="sb-c" id="sb-status"></span>
@@ -586,9 +689,8 @@
       <div class="deckrow">
         <div class="bars" id="dots"></div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <span class="hint">&#8592; / &#8594; to pick while live &middot; U undo</span>
+          <span class="hint">&#8592; / &#8594; to pick while live</span>
           <button class="btn wager-cta" id="wagerbtn">Wager TP</button>
-          <button class="btn" id="undo">Undo</button>
         </div>
       </div>
     </div>
@@ -656,6 +758,23 @@
 
   <!-- ================= RULES ================= -->
   <section data-page="rules" hidden class="page">
+    <div class="panel launch" id="launch-block">
+      <h2 class="pt">Go Live</h2>
+      <p class="psub">The Cup kicks off once 80 people are in</p>
+      <p class="launch-lead">The tournament stays on the bench until <b>80 people join</b>. The moment we hit 80, a <b>24-hour countdown</b> starts — when it reaches zero, the whistle blows and the first match is live.</p>
+      <div class="join-row">
+        <div class="join-count"><span id="join-n">0</span> <span class="join-sub">/ 80 joined</span></div>
+        <div class="join-bar"><i id="join-bar-i"></i></div>
+      </div>
+      <div class="launch-cta" id="launch-cta">
+        <button class="home-cta" id="join-btn">Join the Cup</button>
+        <a class="btn" href="#/demo" style="align-self:center">Try the demo</a>
+      </div>
+      <div class="countdown" id="countdown-wrap" hidden>
+        <div class="cd-lbl">Kickoff in</div>
+        <div class="cd-clock" id="cd-clock">24:00:00</div>
+      </div>
+    </div>
     <div class="panel rules">
       <h2 class="pt">Rules</h2>
       <p class="psub">Short version &mdash; there is no long version</p>
@@ -665,6 +784,51 @@
       <p><b>Taste Points</b> reward participation: +25 per vote, +100 when your pick wins, small bonuses on the Earn page. TP lives on your device.</p>
     </div>
   </section>
+
+  <!-- ================= DEMO ================= -->
+  <section data-page="demo" hidden class="page">
+    <div class="panel">
+      <h2 class="pt">Try the Demo</h2>
+      <p class="psub">A single sample match &mdash; see how a vote becomes a shot</p>
+      <p class="demo-lead">This is a <b>demo match</b> (it doesn't affect the real tournament). Pick the artwork that pulls you in — your vote lands as a shot on goal, the crowd reacts, and full time is decided. Then help us reach <b>80 joins</b> so the Cup can start.</p>
+
+      <div class="demo-pitch" id="demo-pitch">
+        <button class="demo-side" id="demo-h" aria-label="Pick left artwork">
+          <img id="demo-img-h" alt=""><span class="ds-lbl" id="demo-lbl-h"></span><span class="demo-shot" id="demo-shot-h" hidden></span>
+        </button>
+        <div class="demo-vs" id="demo-vs">VS</div>
+        <button class="demo-side" id="demo-a" aria-label="Pick right artwork">
+          <img id="demo-img-a" alt=""><span class="ds-lbl" id="demo-lbl-a"></span><span class="demo-shot" id="demo-shot-a" hidden></span>
+        </button>
+      </div>
+      <div class="demo-score" id="demo-score"><span id="demo-sc-h">0</span><span class="ds-sep">–</span><span id="demo-sc-a">0</span></div>
+      <div class="demo-comm" id="demo-comm">Tap a side to cast your vote.</div>
+      <div class="demo-cta"><button class="btn" id="demo-again">New demo match</button></div>
+
+      <hr class="home-rule" style="margin:22px auto 0">
+      <div class="join-row" style="margin-top:22px">
+        <div class="join-count"><span id="join-n2">0</span> <span class="join-sub">/ 80 joined — the Cup starts at 80</span></div>
+        <div class="join-bar"><i id="join-bar-i2"></i></div>
+      </div>
+      <div class="launch-cta"><button class="home-cta" id="join-btn2">Join &amp; get the Cup started</button></div>
+    </div>
+  </section>
+
+  <!-- ================= SHARE-TO-EARN MODAL ================= -->
+  <div class="sb-back" id="sh-back">
+    <div class="sb-pop" id="sh-pop">
+      <button class="sb-pop-close" id="sh-close" aria-label="Close">&times;</button>
+      <div class="sb-pop-h">You're in — now bring the crowd</div>
+      <p class="psub" style="margin:0 0 10px">Share your code. When friends join with it, the Cup gets closer to kickoff — and you earn Taste Points.</p>
+      <label class="sb-lbl">Your invite code</label>
+      <div class="sh-code" id="sh-code">—</div>
+      <div class="sb-row">
+        <button class="sb-btn sb-save" id="sh-tweet">Share on X</button>
+        <button class="sb-btn" id="sh-copy">Copy link</button>
+      </div>
+      <div class="sh-note" id="sh-note"></div>
+    </div>
+  </div>
 
   <!-- ================= PROFILE ================= -->
   <section data-page="profile" hidden class="page">
@@ -759,7 +923,69 @@ try{
 }catch(e){ ONLINE=false; }
 const INC = n => firebase.firestore.FieldValue.increment(n);
 
-const DATA = {"pitch":{"palette":["#009a45","#009245","#008b45"],"tokens":[{"id":1,"bytes":"0x00010100010100010001010001010001010202010202010200010100010100010001010001010001010202010202010200010100010100010001010001010001"},{"id":2,"bytes":"0x00010001000100010102010201020102000100010001000101020102010201020001000100010001010201020102010200010001000100010102010201020102"},{"id":3,"bytes":"0x00010001000100010001000100010001000100010001000100010001000100010102010201020102010201020102010201020102010201020102010201020102"},{"id":4,"bytes":"0x01000001010000010201010202010102020101020201010201000001010000010100000101000001020101020201010202010102020101020100000101000001"},{"id":5,"bytes":"0x01010101000000000101010100000000020202020101010101010101000000000101010100000000020202020101010101010101000000000101010100000000"}]},"home":{"palette":["#00000000","#c00a25","#ea283a","#f13342","#100c0d","#9e0311","#fefefe","#132142","#ffffff","#0a3eac","#f81e24","#c40003","#313534","#861528","#5c101a","#f11f1d","#027dd8","#1d2a59","#d01c2d","#f3cf26","#0c1a39","#fdbf24","#02594a","#f5b71c","#db0623","#036c49","#f2da94","#02af7c","#0b4b3a","#0c1f1b","#f6f7fa","#766fc4","#e70a23","#09306d","#0f1c33","#5b98d6","#b79c59","#f1d382","#b8dcf6","#161616","#e01524","#e7e0d7","#179a7a","#d41a1b","#14a2f3","#bd030f","#01437a","#64c2f6","#f0da40","#0085dc","#b3c4d5","#0b3f96","#063bab","#00043d","#c3bfc4","#fb2a21","#01399a","#fee038","#e53d5a","#225eca","#ffc409","#1a2957","#e81315","#e00213","#f5dc19","#183a2a","#137cb2","#ffd246","#05a1f4","#072ca2","#900c24","#e9122a","#9c142e","#840319","#780214","#000000","#dd0a09","#ffcf07","#f96b01","#fd770b","#f16102","#069070","#f7c702","#0b113a","#c40305","#032a9d","#08399f","#1740b3","#e7061d","#011e83","#f65426","#023c9f","#fee94d","#ffe011","#015cc3","#e20e2a","#fdc642","#d8051d","#d30621","#101010","#282828","#1c1c1c","#2c2c2c","#121212","#b1d3f5","#e4b368","#192f60","#a61624","#201e1c","#eedda9","#cd061b","#0a143c","#f13d48","#fdfdff","#1c2e45","#f1f1f4","#bd2c4e","#ad2931","#036c63","#e4685a","#76090a","#023282","#0b1755","#f7b363","#302e31","#c27278","#ca2938","#f9df10","#89b4aa","#40a657","#edce8d","#e60409","#041136","#0f1d3b","#d40c19","#c00617","#a20616","#024b39","#fafafa","#b70116","#027b61","#01674b"],"tokens":[{"id":41,"bytes":"0x00000000000000000000000000000000000001020304000000000502020600000000020105020000000001020102000000000000000000000000040404040000"},{"id":42,"bytes":"0x00000000000000000000000000000000000007080807000000000809090800000000090909090000000009090909000000000000000000000000080808080000"},{"id":43,"bytes":"0x0000000000000000000000000000000000000a0a0b0b000000000a0b0a0b000000000b0b0a0a000000000b0b0a0a0000000000000000000000000c0c0c0c0000"},{"id":44,"bytes":"0x0000000000000000000000000000000000000d08080d000000000d0e0d0d000000000d0d0e0d000000000d0e0d0d0000000000000000000000000e0e0e0e0000"},{"id":45,"bytes":"0x0000000000000000000000000000000000000f101010000000000f080f08000000000f080f08000000000f080f080000000000000000000000000f080f080000"},{"id":46,"bytes":"0x00000000000000000000000000000000000011080811000000001112131100000000111111110000000011111111000000000000000000000000141414140000"},{"id":47,"bytes":"0x00000000000000000000000000000000000015161615000000001515151600000000151515150000000015151515000000000000000000000000171717170000"},{"id":48,"bytes":"0x0000000000000000000000000000000000001819191800000000181a1b1800000000191818190000000019181819000000000000000000000000080808080000"},{"id":49,"bytes":"0x0000000000000000000000000000000000001c1d1e1c000000001f1c1c1f000000001c1f1c1c000000001f1c1c1f0000000000000000000000001f1c1f1c0000"},{"id":50,"bytes":"0x00000000000000000000000000000000000020210820000000002121212100000000082108080000000020210820000000000000000000000000202108200000"},{"id":51,"bytes":"0x00000000000000000000000000000000000008222208000000002308242500000000230826080000000023082608000000000000000000000000230826080000"},{"id":52,"bytes":"0x00000000000000000000000000000000000027282827000000002728082700000000282828280000000027282827000000000000000000000000282828280000"},{"id":53,"bytes":"0x000000000000000000000000000000000000292a2a29000000002929292900000000292b082900000000292929290000000000000000000000002a29292a0000"},{"id":54,"bytes":"0x0000000000000000000000000000000000002c2d2e2c000000002f2c2f30000000003132313200000000323132310000000000003300330000002c2f2c2f0000"},{"id":55,"bytes":"0x00000000000000000000000000000000000034353534000000003634343600000000343434340000000034343434000000000000000000000000343434340000"},{"id":56,"bytes":"0x00000000000000000000000000000000000008370837000000003738370800000000083708370000000037083708000000000000000000000000370837080000"},{"id":57,"bytes":"0x000000000000000000000000000000000000393939390000000039393a39000000003939393900000000393939390000000000000000000000003b3b3b3b0000"},{"id":58,"bytes":"0x0000000000000000000000000000000000003c3d3d3c000000003d3e3e3d000000003d3e3e3d000000003e3e3e3e0000000000000000000000003e3e3e3e0000"},{"id":59,"bytes":"0x0000000000000000000000000000000000003f3f3f3f000000003f3f083f000000003f3f3f3f000000003f3f3f3f0000000000000000000000003f3f3f3f0000"},{"id":60,"bytes":"0x00000000000000000000000000000000000040414140000000004040400800000000404040400000000040404040000000000000000000000000424242420000"},{"id":61,"bytes":"0x00000000000000000000000000000000000043444443000000004445454400000000454508450000000045454545000000000000000000000000454545450000"},{"id":62,"bytes":"0x0000000000000000000000000000000000004647474800000000494649460000000047470847000000004a494648000000000000000000000000464a48490000"},{"id":63,"bytes":"0x0000000000000000000000000000000000000808084b000000004b084b4c000000004c4b4c4d000000004d4c4d08000000000000000000000000080808080000"},{"id":64,"bytes":"0x0000000000000000000000000000000000004e4f4f4e000000004e50085000000000514f4e5100000000514e4f510000000000000000000000004e4f4e500000"},{"id":65,"bytes":"0x00000000000000000000000000000000000052535352000000005252545200000000535252530000000052525252000000000000000000000000525252520000"},{"id":66,"bytes":"0x00000000000000000000000000000000000055080855000000005655565500000000575857590000000056595655000000000000000000000000555555550000"},{"id":67,"bytes":"0x0000000000000000000000000000000000005a4b4b5a000000005a5a5a5a000000005a4b5a5a000000005a5a5a5a0000000000000000000000005a5a5a5a0000"},{"id":68,"bytes":"0x0000000000000000000000000000000000005b5c5c5b000000005d5d5e5d000000005d5d5d5d000000005d5d5d5d0000000000000000000000005d5d5d5d0000"},{"id":69,"bytes":"0x0000000000000000000000000000000000005f604b5f0000000061615f62000000005f62615f00000000615f61620000000000000000000000005f625f610000"},{"id":70,"bytes":"0x0000000000000000000000000000000000004b63644b000000004b65064b0000000065666366000000004b6365670000000000000000000000006465634b0000"},{"id":71,"bytes":"0x000000000000000000000000000000000000680808680000000068686968000000006868686800000000686868680000000000000000000000006a6a6a6a0000"},{"id":72,"bytes":"0x0000000000000000000000000000000000006b6c6c6b000000006b6b6b6d000000006b6e6b6b000000006e6e6e6b0000000000000000000000006e6e6e6e0000"},{"id":73,"bytes":"0x0000000000000000000000000000000000006f70336f000000006f33716f00000000336f336f000000006f336f33000000000000000000000000006f006f0000"},{"id":74,"bytes":"0x00000000000000000000000000000000000008727208000000000808087300000000080808080000000074080874000000000000000000000000080808080000"},{"id":75,"bytes":"0x00000000000000000000000000000000000075767675000000007575757700000000757575750000000075757575000000000000000000000000787878780000"},{"id":76,"bytes":"0x0000000000000000000000000000000000007908087a000000007a797a7b00000000797a797a000000007a797a79000000000000000000000000797a797a0000"},{"id":77,"bytes":"0x000000000000000000000000000000000000087c7c08000000007d087e7f0000000008807c810000000080088208000000000000000000000000800808820000"},{"id":78,"bytes":"0x00000000000000000000000000000000000083848483000000008383830800000000838383830000000083838383000000000000000000000000848383840000"},{"id":79,"bytes":"0x00000000000000000000000000000000000008858586000000008786880800000000080808860000000087868808000000000000000000000000080808080000"},{"id":80,"bytes":"0x000000000000000000000000000000000000898a8b89000000008c89898c00000000898c8d89000000008d89898d0000000000000000000000008b8b8b8b0000"}]},"away":{"palette":["#00000000","#b3a2da","#a696d2","#d0c1e7","#284276","#e0d8ea","#043f86","#fecf02","#f6f5f9","#e0e8fb","#faf5d9","#f8f8f8","#d4d4d4","#ed152e","#a03a48","#f0eff6","#5594a4","#232327","#323542","#1ea9c9","#dde3e6","#3c4861","#1f2433","#2b6a8a","#0290bc","#d7655f","#574380","#ffffff","#d1554f","#f27f71","#008f9d","#c87165","#003f4a","#005964","#f5f4f7","#036c49","#db0623","#f2da94","#02af7c","#f5e9db","#c3b179","#0b4b3a","#f1f2f6","#e8dec8","#161614","#000000","#262422","#222429","#151518","#f1eef3","#7fd9ff","#273e75","#b79c59","#2a4eaa","#2d3037","#337698","#e2eae8","#cbe8db","#e8eeef","#dfebea","#232323","#e7e0d7","#179a7a","#d41a1b","#efefef","#539ddd","#f5f5f5","#f0da40","#d0e6e8","#dbeaf1","#c2def7","#a6d5f3","#7eb2de","#f0f0f0","#163321","#33608a","#2f5abb","#01399a","#fb2a21","#163d60","#0d1932","#03789d","#124969","#0b6488","#e2e515","#f1f1ef","#bf9c52","#610d1c","#f9f9f9","#8bf77a","#deeae9","#41536b","#b9efc0","#ed3c44","#172847","#181f27","#153066","#e9ca12","#2f9cd5","#4fafbc","#0b2577","#e3337a","#f2dc8d","#e29005","#e5e5e5","#f1f1f1","#9e1c2a","#e9122a","#243448","#dddfe3","#a3dad9","#1f2f43","#05080e","#c5dcca","#eae5e1","#eceaef","#f2d1b2","#069070","#1c2336","#0d0f1b","#bc9882","#e2e9e1","#2d2b27","#d4deea","#f0eee8","#ecd7d4","#eae2ce","#f9d6d6","#e6e5ed","#fd7555","#fd532b","#023c9f","#005cb9","#013192","#036acc","#ffe011","#f3aeb6","#151215","#9cc1cd","#c3e2eb","#f0f0f4","#eea6a6","#f0e2e7","#e1e3ea","#f2f2f4","#e9e9ed","#1d2334","#3b58bd","#5d8fe6","#3f71d0","#040511","#fab583","#c4bde1","#1f2366","#323b8d","#e5e7eb","#201e1c","#ebebef","#ce091c","#d9dff4","#c82037","#33459c","#f2f3fc","#e3e7f6","#071033","#e71835","#2c1e36","#90d3c9","#057b7f","#eaeef2","#74c8bc","#e34148","#d4e7e1","#82cfc3","#ddece7","#e5f1ed","#bfdccf","#72b4a3","#ba7946","#a40411","#151d41","#ffe467","#e02615","#018471","#302f27","#f8c442","#e9eae7","#04060a","#d6d7d2","#9e211e","#242b36","#1c212b","#95a1aa","#154441","#dc1315","#e4e5de"],"tokens":[{"id":41,"bytes":"0x00000000000000000000000000000000000001020302000000000201040500000000030503030000000001030102000000000000000000000000010201020000"},{"id":42,"bytes":"0x00000000000000000000000000000000000006060706000000000608090600000000080a090800000000080a0808000000000000000000000000060606060000"},{"id":43,"bytes":"0x0000000000000000000000000000000000000b0b0c0c000000000b0c0d0c000000000c0c0b0b000000000c0c0b0b0000000000000000000000000b0b0b0b0000"},{"id":44,"bytes":"0x0000000000000000000000000000000000000e0f0f0e000000000f0f0e0f000000000f0f0f0f000000000f0f0f0f0000000000000000000000000f0f0f0f0000"},{"id":45,"bytes":"0x00000000000000000000000000000000000010111112000000001213141000000000151617160000000012181612000000000000000000000000121615120000"},{"id":46,"bytes":"0x000000000000000000000000000000000000191a1b1c00000000191c191c000000001a1c191a00000000191c191c0000000000000000000000001a1a1a1a0000"},{"id":47,"bytes":"0x0000000000000000000000000000000000001d1e1d1d000000001f1f201f00000000212121210000000021212121000000000000000000000000212121210000"},{"id":48,"bytes":"0x00000000000000000000000000000000000022232422000000002225262200000000222727220000000022272722000000000000000000000000222222220000"},{"id":49,"bytes":"0x00000000000000000000000000000000000028292928000000002a2a2b2a000000002a2a2a2a000000002a2a2a2a0000000000000000000000002a2a2a2a0000"},{"id":50,"bytes":"0x0000000000000000000000000000000000002c2c2c2c000000002d2c2e2c000000002c2c2c2c000000002c2c2c2c0000000000000000000000002d2d2d2d0000"},{"id":51,"bytes":"0x0000000000000000000000000000000000002f303132000000003334352f0000000036372f36000000002f333237000000000000000000000000332f35330000"},{"id":52,"bytes":"0x0000000000000000000000000000000000003839393a000000003a3b3c3a0000000039383a39000000003a3a383a0000000000000000000000003a383a380000"},{"id":53,"bytes":"0x0000000000000000000000000000000000003d3e3e3d000000003d3d3d3d000000003d3f1b3d000000003d3d3d3d0000000000000000000000003e3d3d3e0000"},{"id":54,"bytes":"0x00000000000000000000000000000000000040414140000000004042404300000000444544450000000046474647000000000000000000000000484848480000"},{"id":55,"bytes":"0x000000000000000000000000000000000000494949490000000049494a490000000049494949000000004b49494b000000000000000000000000494949490000"},{"id":56,"bytes":"0x0000000000000000000000000000000000004c4d4c4d000000004d4e4d4c000000004c4d4c4d000000004d4c4d4c0000000000000000000000004d4c4d4c0000"},{"id":57,"bytes":"0x0000000000000000000000000000000000004f5050510000000052535453000000004f514f510000000052535253000000000000000000000000525152510000"},{"id":58,"bytes":"0x00000000000000000000000000000000000055565755000000005555585500000000575555570000000055555555000000000000000000000000555555550000"},{"id":59,"bytes":"0x000000000000000000000000000000000000595a5b5c000000005c595d590000000059595c5c000000005b5c595b0000000000000000000000005c595c590000"},{"id":60,"bytes":"0x0000000000000000000000000000000000005e5f5f5e000000006061626000000000605f5f60000000005e5f5f5e000000000000000000000000605f5f600000"},{"id":61,"bytes":"0x00000000000000000000000000000000000063646465000000006666676600000000646666640000000066666666000000000000000000000000666666660000"},{"id":62,"bytes":"0x000000000000000000000000000000000000686969680000000069696969000000006a6b1b6a0000000069696969000000000000000000000000696969690000"},{"id":63,"bytes":"0x0000000000000000000000000000000000006c6d6e6c000000006f6f706f000000006e6c6f6e000000006c6f6c6f0000000000000000000000006f6f6f6f0000"},{"id":64,"bytes":"0x00000000000000000000000000000000000071727371000000007374757300000000737274710000000071747174000000000000000000000000737174730000"},{"id":65,"bytes":"0x00000000000000000000000000000000000076777776000000007676787600000000767676760000000076767676000000000000000000000000767676760000"},{"id":66,"bytes":"0x000000000000000000000000000000000000791b7a7b00000000797c7d7b000000007a7c7d7a00000000797e7d7c0000000000000000000000007c7e7f7c0000"},{"id":67,"bytes":"0x000000000000000000000000000000000000808080800000000081822d8100000000808080800000000080808080000000000000000000000000828282820000"},{"id":68,"bytes":"0x00000000000000000000000000000000000083848586000000008586878400000000838485860000000085868384000000000000000000000000838383830000"},{"id":69,"bytes":"0x0000000000000000000000000000000000008889898a000000008b888c8800000000898b8b89000000008b8d8a8e0000000000000000000000008b8a888c0000"},{"id":70,"bytes":"0x0000000000000000000000000000000000008f908f910000000091902d8f00000000908f8f90000000008f919091000000000000000000000000918f90910000"},{"id":71,"bytes":"0x000000000000000000000000000000000000929394920000000095969798000000009299929a0000000092929292000000000000000000000000929292920000"},{"id":72,"bytes":"0x0000000000000000000000000000000000009b9c9c9d000000009d9b9d9e000000009b9d9b9d000000009d9b9d9b0000000000000000000000009b9d9b9d0000"},{"id":73,"bytes":"0x0000000000000000000000000000000000009fa0a19f00000000a2a3a4a200000000a29fa3a200000000a3a39fa3000000000000000000000000a29fa3a20000"},{"id":74,"bytes":"0x000000000000000000000000000000000000a5a6a6a500000000a5a51ba500000000a5a5a5a500000000a5a5a5a5000000000000000000000000a6a6a6a60000"},{"id":75,"bytes":"0x000000000000000000000000000000000000a7a8a9a700000000aaa7abaa00000000acaaadac00000000aeacacae000000000000000000000000afacaeac0000"},{"id":76,"bytes":"0x000000000000000000000000000000000000b0b0b1b000000000b0b0b2b000000000b0b0b0b000000000b3b0b0b4000000000000000000000000b0b0b0b00000"},{"id":77,"bytes":"0x000000000000000000000000000000000000b5b6b6b500000000b7b5b8b700000000b5b9b9b500000000b7b9b5b7000000000000000000000000b5b9b9b50000"},{"id":78,"bytes":"0x000000000000000000000000000000000000babbbbba00000000babc1bba00000000babababa00000000bdbababb000000000000000000000000babababa0000"},{"id":79,"bytes":"0x000000000000000000000000000000000000bebfbebf00000000bfbec0be00000000bebfbebf00000000bfbebfbe000000000000000000000000bfbebfbe0000"},{"id":80,"bytes":"0x00000000000000000000000000000000000040c1c24000000000c240c3c100000000404040400000000040404040000000000000000000000000c1c1c1c10000"}]}};
+/* ============================================================
+   OWNER PASSCODE — only the owner can edit the advertising boards.
+   >>> CHANGE THIS to your own secret before shipping. <<<
+   Unlock by visiting #/unlock (you'll be prompted) or opening the
+   site with ?owner=YOURPASSCODE. The unlock flag lives in
+   localStorage 'owc:owner'. Clear it by re-visiting #/unlock and
+   entering anything but the passcode, or clearing site data.
+   ============================================================ */
+const OWNER_PASSCODE = 'dewd2026';
+
+/* ---------- launch mechanic: 80 joins -> 24h countdown ---------- */
+const JOIN_GOAL = 80;
+const JOINS_KEY='owc:joins', JOINED_KEY='owc:joined', KICKOFF_KEY='owc:kickoff', REFCODE_KEY='owc:refcode';
+const KICKOFF_MS = 24*60*60*1000;   // 24 hours
+
+/* ---- SHARED (global via Firebase) join count + launch time ----
+   When ONLINE these mirror meta/joins.count and meta/launch.kickoff and are
+   the source of truth; localStorage remains the offline fallback + local seed.
+   SHARED_JOINS/SHARED_KICKOFF stay null until the first snapshot arrives. */
+let SHARED_JOINS = null;     // number | null (null = no snapshot yet)
+let SHARED_KICKOFF = null;   // ms timestamp | null
+
+/* seed a believable base join count on first load (client-side demo/offline) */
+function getJoins(){
+  if(ONLINE && SHARED_JOINS!=null) return SHARED_JOINS;   // shared count wins when online
+  let n=parseInt(localStorage.getItem(JOINS_KEY),10);
+  if(!Number.isFinite(n)){ n=63; try{ localStorage.setItem(JOINS_KEY,String(n)); }catch(e){} }
+  return n;
+}
+function setJoins(n){ try{ localStorage.setItem(JOINS_KEY,String(n)); }catch(e){} maybeStartKickoff(); }
+function hasJoined(){ return localStorage.getItem(JOINED_KEY)==='1'; }
+/* once we reach the goal, lock in the kickoff target = now + 24h (once).
+   OFFLINE: uses local owc:kickoff. ONLINE: sets shared meta/launch.kickoff
+   (best-effort; last write wins if two clients race). */
+function maybeStartKickoff(){
+  if(getJoins()<JOIN_GOAL) return;
+  if(ONLINE && db){
+    if(SHARED_KICKOFF==null){       // no shared launch time yet -> set it once
+      const t=Date.now()+KICKOFF_MS;
+      try{ db.collection('meta').doc('launch').set({kickoff:t},{merge:true}).catch(()=>{}); }catch(e){}
+    }
+  }
+  if(!localStorage.getItem(KICKOFF_KEY)){
+    try{ localStorage.setItem(KICKOFF_KEY, String(Date.now()+KICKOFF_MS)); }catch(e){}
+  }
+}
+/* local-only kickoff target (offline fallback) */
+function kickoffTarget(){ const v=parseInt(localStorage.getItem(KICKOFF_KEY),10); return Number.isFinite(v)?v:0; }
+/* the effective launch kickoff timestamp: shared when online, else local */
+function launchKickoff(){
+  if(ONLINE && SHARED_KICKOFF!=null && SHARED_KICKOFF>0) return SHARED_KICKOFF;
+  return kickoffTarget();
+}
+
+/* stable per-device referral code (short base36) */
+function refCode(){
+  let c=localStorage.getItem(REFCODE_KEY);
+  if(!c){ c=(Date.now().toString(36)+Math.random().toString(36).slice(2,6)).slice(-6).toUpperCase();
+    try{ localStorage.setItem(REFCODE_KEY,c); }catch(e){} }
+  return c;
+}
+
+const DATA = {"pitch":{"palette":["#009a45","#009245","#008b45"],"tokens":[{"id":1,"bytes":"0x00010100010100010001010001010001010202010202010200010100010100010001010001010001010202010202010200010100010100010001010001010001"},{"id":2,"bytes":"0x00010001000100010102010201020102000100010001000101020102010201020001000100010001010201020102010200010001000100010102010201020102"},{"id":3,"bytes":"0x00010001000100010001000100010001000100010001000100010001000100010102010201020102010201020102010201020102010201020102010201020102"},{"id":4,"bytes":"0x01000001010000010201010202010102020101020201010201000001010000010100000101000001020101020201010202010102020101020100000101000001"},{"id":5,"bytes":"0x01010101000000000101010100000000020202020101010101010101000000000101010100000000020202020101010101010101000000000101010100000000"}]},"home":{"palette":["#00000000","#c00a25","#ea283a","#f13342","#100c0d","#9e0311","#fefefe","#132142","#fff","#0a3eac","#f81e24","#c40003","#313534","#861528","#5c101a","#f11f1d","#027dd8","#1d2a59","#d01c2d","#f3cf26","#0c1a39","#fdbf24","#02594a","#f5b71c","#db0623","#036c49","#f2da94","#02af7c","#0b4b3a","#0c1f1b","#f6f7fa","#766fc4","#e70a23","#09306d","#0f1c33","#5b98d6","#b79c59","#f1d382","#b8dcf6","#161616","#e01524","#e7e0d7","#179a7a","#d41a1b","#0b3f96","#14a2f3","#bd030f","#01437a","#64c2f6","#f0da40","#0085dc","#b3c4d5","#063bab","#00043d","#c3bfc4","#fb2a21","#01399a","#fee038","#e53d5a","#225eca","#ffc409","#1a2957","#e81315","#e00213","#f5dc19","#183a2a","#137cb2","#ffd246","#05a1f4","#072ca2","#900c24","#e9122a","#9c142e","#840319","#780214","#dd0a09","#ffcf07","#f96b01","#fd770b","#f16102","#069070","#f7c702","#0b113a","#c40305","#032a9d","#08399f","#1740b3","#e7061d","#011e83","#f65426","#023c9f","#fee94d","#ffe011","#015cc3","#e20e2a","#fdc642","#d8051d","#d30621","#101010","#282828","#1c1c1c","#2c2c2c","#121212","#b1d3f5","#e4b368","#192f60","#a61624","#201e1c","#eedda9","#cd061b","#0a143c","#f13d48","#fdfdff","#1c2e45","#f1f1f4","#bd2c4e","#ad2931","#036c63","#e4685a","#76090a","#023282","#0b1755","#f7b363","#302e31","#c27278","#ca2938","#f9df10","#89b4aa","#40a657","#edce8d","#e60409","#041136","#0f1d3b","#d40c19","#c00617","#a20616","#024b39","#fafafa","#b70116","#027b61","#01674b"],"tokens":[{"id":41,"bytes":"0x00000000000000000000000000000000000001020304000000000502020600000000020105020000000001020102000000000000000000000000040404040000"},{"id":42,"bytes":"0x00000000000000000000000000000000000007080807000000000809090800000000090909090000000009090909000000000000000000000000080808080000"},{"id":43,"bytes":"0x0000000000000000000000000000000000000a0a0b0b000000000a0b0a0b000000000b0b0a0a000000000b0b0a0a0000000000000000000000000c0c0c0c0000"},{"id":44,"bytes":"0x0000000000000000000000000000000000000d08080d000000000d0e0d0d000000000d0d0e0d000000000d0e0d0d0000000000000000000000000e0e0e0e0000"},{"id":45,"bytes":"0x0000000000000000000000000000000000000f101010000000000f080f08000000000f080f08000000000f080f080000000000000000000000000f080f080000"},{"id":46,"bytes":"0x00000000000000000000000000000000000011080811000000001112131100000000111111110000000011111111000000000000000000000000141414140000"},{"id":47,"bytes":"0x00000000000000000000000000000000000015161615000000001515151600000000151515150000000015151515000000000000000000000000171717170000"},{"id":48,"bytes":"0x0000000000000000000000000000000000001819191800000000181a1b1800000000191818190000000019181819000000000000000000000000080808080000"},{"id":49,"bytes":"0x0000000000000000000000000000000000001c1d1e1c000000001f1c1c1f000000001c1f1c1c000000001f1c1c1f0000000000000000000000001f1c1f1c0000"},{"id":50,"bytes":"0x00000000000000000000000000000000000020210820000000002121212100000000082108080000000020210820000000000000000000000000202108200000"},{"id":51,"bytes":"0x00000000000000000000000000000000000008222208000000002308242500000000230826080000000023082608000000000000000000000000230826080000"},{"id":52,"bytes":"0x00000000000000000000000000000000000027282827000000002728082700000000282828280000000027282827000000000000000000000000282828280000"},{"id":53,"bytes":"0x000000000000000000000000000000000000292a2a29000000002929292900000000292b082900000000292929290000000000000000000000002a29292a0000"},{"id":54,"bytes":"0x0000000000000000000000000000000000002d2e2f2d00000000302d3031000000003233323300000000333233320000000000002c002c0000002d302d300000"},{"id":55,"bytes":"0x00000000000000000000000000000000000034353534000000003634343600000000343434340000000034343434000000000000000000000000343434340000"},{"id":56,"bytes":"0x00000000000000000000000000000000000008370837000000003738370800000000083708370000000037083708000000000000000000000000370837080000"},{"id":57,"bytes":"0x000000000000000000000000000000000000393939390000000039393a39000000003939393900000000393939390000000000000000000000003b3b3b3b0000"},{"id":58,"bytes":"0x0000000000000000000000000000000000003c3d3d3c000000003d3e3e3d000000003d3e3e3d000000003e3e3e3e0000000000000000000000003e3e3e3e0000"},{"id":59,"bytes":"0x0000000000000000000000000000000000003f3f3f3f000000003f3f083f000000003f3f3f3f000000003f3f3f3f0000000000000000000000003f3f3f3f0000"},{"id":60,"bytes":"0x00000000000000000000000000000000000040414140000000004040400800000000404040400000000040404040000000000000000000000000424242420000"},{"id":61,"bytes":"0x00000000000000000000000000000000000043444443000000004445454400000000454508450000000045454545000000000000000000000000454545450000"},{"id":62,"bytes":"0x0000000000000000000000000000000000004647474800000000494649460000000047470847000000004a494648000000000000000000000000464a48490000"},{"id":63,"bytes":"0x00000000000000000000000000000000000008080800000000000008004b000000004b004b4c000000004c4b4c08000000000000000000000000080808080000"},{"id":64,"bytes":"0x0000000000000000000000000000000000004d4e4e4d000000004d4f084f00000000504e4d5000000000504d4e500000000000000000000000004d4e4d4f0000"},{"id":65,"bytes":"0x00000000000000000000000000000000000051525251000000005151535100000000525151520000000051515151000000000000000000000000515151510000"},{"id":66,"bytes":"0x00000000000000000000000000000000000054080854000000005554555400000000565756580000000055585554000000000000000000000000545454540000"},{"id":67,"bytes":"0x00000000000000000000000000000000000059000059000000005959595900000000590059590000000059595959000000000000000000000000595959590000"},{"id":68,"bytes":"0x0000000000000000000000000000000000005a5b5b5a000000005c5c5d5c000000005c5c5c5c000000005c5c5c5c0000000000000000000000005c5c5c5c0000"},{"id":69,"bytes":"0x0000000000000000000000000000000000005e5f005e0000000060605e61000000005e61605e00000000605e60610000000000000000000000005e615e600000"},{"id":70,"bytes":"0x00000000000000000000000000000000000000626300000000000064060000000000646562650000000000626466000000000000000000000000636462000000"},{"id":71,"bytes":"0x00000000000000000000000000000000000067080867000000006767686700000000676767670000000067676767000000000000000000000000696969690000"},{"id":72,"bytes":"0x0000000000000000000000000000000000006a6b6b6a000000006a6a6a6c000000006a6d6a6a000000006d6d6d6a0000000000000000000000006d6d6d6d0000"},{"id":73,"bytes":"0x0000000000000000000000000000000000006e6f2c6e000000006e2c706e000000002c6e2c6e000000006e2c6e2c000000000000000000000000006e006e0000"},{"id":74,"bytes":"0x00000000000000000000000000000000000008717108000000000808087200000000080808080000000073080873000000000000000000000000080808080000"},{"id":75,"bytes":"0x00000000000000000000000000000000000074757574000000007474747600000000747474740000000074747474000000000000000000000000777777770000"},{"id":76,"bytes":"0x00000000000000000000000000000000000078080879000000007978797a00000000787978790000000079787978000000000000000000000000787978790000"},{"id":77,"bytes":"0x000000000000000000000000000000000000087b7b08000000007c087d7e00000000087f7b80000000007f0881080000000000000000000000007f0808810000"},{"id":78,"bytes":"0x00000000000000000000000000000000000082838382000000008282820800000000828282820000000082828282000000000000000000000000838282830000"},{"id":79,"bytes":"0x00000000000000000000000000000000000008848485000000008685870800000000080808850000000086858708000000000000000000000000080808080000"},{"id":80,"bytes":"0x00000000000000000000000000000000000088898a88000000008b88888b00000000888b8c88000000008c88888c0000000000000000000000008a8a8a8a0000"}]},"away":{"palette":["#00000000","#b3a2da","#a696d2","#d0c1e7","#284276","#e0d8ea","#043f86","#fecf02","#f6f5f9","#e0e8fb","#faf5d9","#f8f8f8","#d4d4d4","#ed152e","#a03a48","#f0eff6","#5594a4","#232327","#323542","#1ea9c9","#dde3e6","#3c4861","#1f2433","#2b6a8a","#0290bc","#d7655f","#574380","#ffffff","#d1554f","#f27f71","#008f9d","#c87165","#003f4a","#005964","#f5f4f7","#036c49","#db0623","#f2da94","#02af7c","#f5e9db","#c3b179","#0b4b3a","#f1f2f6","#e8dec8","#161614","#000000","#262422","#222429","#151518","#f1eef3","#7fd9ff","#273e75","#b79c59","#2a4eaa","#2d3037","#337698","#e2eae8","#cbe8db","#e8eeef","#dfebea","#232323","#e7e0d7","#179a7a","#d41a1b","#efefef","#539ddd","#f5f5f5","#f0da40","#d0e6e8","#dbeaf1","#c2def7","#a6d5f3","#7eb2de","#f0f0f0","#163321","#33608a","#2f5abb","#01399a","#fb2a21","#163d60","#0d1932","#03789d","#124969","#0b6488","#e2e515","#f1f1ef","#bf9c52","#610d1c","#f9f9f9","#8bf77a","#deeae9","#41536b","#b9efc0","#ed3c44","#172847","#181f27","#153066","#e9ca12","#2f9cd5","#4fafbc","#0b2577","#e3337a","#f2dc8d","#e29005","#e5e5e5","#f1f1f1","#9e1c2a","#e9122a","#243448","#dddfe3","#a3dad9","#1f2f43","#05080e","#c5dcca","#eae5e1","#eceaef","#f2d1b2","#069070","#1c2336","#0d0f1b","#bc9882","#e2e9e1","#2d2b27","#d4deea","#f0eee8","#ecd7d4","#eae2ce","#f9d6d6","#e6e5ed","#fd7555","#fd532b","#023c9f","#005cb9","#013192","#036acc","#ffe011","#f3aeb6","#151215","#9cc1cd","#c3e2eb","#f0f0f4","#eea6a6","#f0e2e7","#e1e3ea","#f2f2f4","#e9e9ed","#1d2334","#3b58bd","#5d8fe6","#3f71d0","#040511","#fab583","#c4bde1","#1f2366","#323b8d","#e5e7eb","#201e1c","#ebebef","#ce091c","#d9dff4","#c82037","#33459c","#f2f3fc","#e3e7f6","#071033","#e71835","#2c1e36","#90d3c9","#057b7f","#eaeef2","#74c8bc","#e34148","#d4e7e1","#82cfc3","#ddece7","#e5f1ed","#bfdccf","#72b4a3","#ba7946","#a40411","#151d41","#ffe467","#e02615","#018471","#302f27","#f8c442","#e9eae7","#04060a","#d6d7d2","#9e211e","#242b36","#1c212b","#95a1aa","#154441","#dc1315","#e4e5de"],"tokens":[{"id":41,"bytes":"0x00000000000000000000000000000000000001020302000000000201040500000000030503030000000001030102000000000000000000000000010201020000"},{"id":42,"bytes":"0x00000000000000000000000000000000000006060706000000000608090600000000080a090800000000080a0808000000000000000000000000060606060000"},{"id":43,"bytes":"0x0000000000000000000000000000000000000b0b0c0c000000000b0c0d0c000000000c0c0b0b000000000c0c0b0b0000000000000000000000000b0b0b0b0000"},{"id":44,"bytes":"0x0000000000000000000000000000000000000e0f0f0e000000000f0f0e0f000000000f0f0f0f000000000f0f0f0f0000000000000000000000000f0f0f0f0000"},{"id":45,"bytes":"0x00000000000000000000000000000000000010111112000000001213141000000000151617160000000012181612000000000000000000000000121615120000"},{"id":46,"bytes":"0x000000000000000000000000000000000000191a1b1c00000000191c191c000000001a1c191a00000000191c191c0000000000000000000000001a1a1a1a0000"},{"id":47,"bytes":"0x0000000000000000000000000000000000001d1e1d1d000000001f1f201f00000000212121210000000021212121000000000000000000000000212121210000"},{"id":48,"bytes":"0x00000000000000000000000000000000000022232422000000002225262200000000222727220000000022272722000000000000000000000000222222220000"},{"id":49,"bytes":"0x00000000000000000000000000000000000028292928000000002a2a2b2a000000002a2a2a2a000000002a2a2a2a0000000000000000000000002a2a2a2a0000"},{"id":50,"bytes":"0x0000000000000000000000000000000000002c2c2c2c000000002d2c2e2c000000002c2c2c2c000000002c2c2c2c0000000000000000000000002d2d2d2d0000"},{"id":51,"bytes":"0x0000000000000000000000000000000000002f303132000000003334352f0000000036372f36000000002f333237000000000000000000000000332f35330000"},{"id":52,"bytes":"0x0000000000000000000000000000000000003839393a000000003a3b3c3a0000000039383a39000000003a3a383a0000000000000000000000003a383a380000"},{"id":53,"bytes":"0x0000000000000000000000000000000000003d3e3e3d000000003d3d3d3d000000003d3f1b3d000000003d3d3d3d0000000000000000000000003e3d3d3e0000"},{"id":54,"bytes":"0x00000000000000000000000000000000000040414140000000004042404300000000444544450000000046474647000000000000000000000000484848480000"},{"id":55,"bytes":"0x000000000000000000000000000000000000494949490000000049494a490000000049494949000000004b49494b000000000000000000000000494949490000"},{"id":56,"bytes":"0x0000000000000000000000000000000000004c4d4c4d000000004d4e4d4c000000004c4d4c4d000000004d4c4d4c0000000000000000000000004d4c4d4c0000"},{"id":57,"bytes":"0x0000000000000000000000000000000000004f5050510000000052535453000000004f514f510000000052535253000000000000000000000000525152510000"},{"id":58,"bytes":"0x00000000000000000000000000000000000055565755000000005555585500000000575555570000000055555555000000000000000000000000555555550000"},{"id":59,"bytes":"0x000000000000000000000000000000000000595a5b5c000000005c595d590000000059595c5c000000005b5c595b0000000000000000000000005c595c590000"},{"id":60,"bytes":"0x0000000000000000000000000000000000005e5f5f5e000000006061626000000000605f5f60000000005e5f5f5e000000000000000000000000605f5f600000"},{"id":61,"bytes":"0x00000000000000000000000000000000000063646465000000006666676600000000646666640000000066666666000000000000000000000000666666660000"},{"id":62,"bytes":"0x000000000000000000000000000000000000686969680000000069696969000000006a6b1b6a0000000069696969000000000000000000000000696969690000"},{"id":63,"bytes":"0x0000000000000000000000000000000000006c6d6e6c000000006f6f706f000000006e6c6f6e000000006c6f6c6f0000000000000000000000006f6f6f6f0000"},{"id":64,"bytes":"0x00000000000000000000000000000000000071727371000000007374757300000000737274710000000071747174000000000000000000000000737174730000"},{"id":65,"bytes":"0x00000000000000000000000000000000000076777776000000007676787600000000767676760000000076767676000000000000000000000000767676760000"},{"id":66,"bytes":"0x000000000000000000000000000000000000791b7a7b00000000797c7d7b000000007a7c7d7a00000000797e7d7c0000000000000000000000007c7e7f7c0000"},{"id":67,"bytes":"0x000000000000000000000000000000000000808080800000000081822d8100000000808080800000000080808080000000000000000000000000828282820000"},{"id":68,"bytes":"0x00000000000000000000000000000000000083848586000000008586878400000000838485860000000085868384000000000000000000000000838383830000"},{"id":69,"bytes":"0x0000000000000000000000000000000000008889898a000000008b888c8800000000898b8b89000000008b8d8a8e0000000000000000000000008b8a888c0000"},{"id":70,"bytes":"0x0000000000000000000000000000000000008f908f910000000091902d8f00000000908f8f90000000008f919091000000000000000000000000918f90910000"},{"id":71,"bytes":"0x000000000000000000000000000000000000929394920000000095969798000000009299929a0000000092929292000000000000000000000000929292920000"},{"id":72,"bytes":"0x0000000000000000000000000000000000009b9c9c9d000000009d9b9d9e000000009b9d9b9d000000009d9b9d9b0000000000000000000000009b9d9b9d0000"},{"id":73,"bytes":"0x0000000000000000000000000000000000009fa0a19f00000000a2a3a4a200000000a29fa3a200000000a3a39fa3000000000000000000000000a29fa3a20000"},{"id":74,"bytes":"0x000000000000000000000000000000000000a5a6a6a500000000a5a51ba500000000a5a5a5a500000000a5a5a5a5000000000000000000000000a6a6a6a60000"},{"id":75,"bytes":"0x000000000000000000000000000000000000a7a8a9a700000000aaa7abaa00000000acaaadac00000000aeacacae000000000000000000000000afacaeac0000"},{"id":76,"bytes":"0x000000000000000000000000000000000000b0b0b1b000000000b0b0b2b000000000b0b0b0b000000000b3b0b0b4000000000000000000000000b0b0b0b00000"},{"id":77,"bytes":"0x000000000000000000000000000000000000b5b6b6b500000000b7b5b8b700000000b5b9b9b500000000b7b9b5b7000000000000000000000000b5b9b9b50000"},{"id":78,"bytes":"0x000000000000000000000000000000000000babbbbba00000000babc1bba00000000babababa00000000bdbababb000000000000000000000000babababa0000"},{"id":79,"bytes":"0x000000000000000000000000000000000000bebfbebf00000000bfbec0be00000000bebfbebf00000000bfbebfbe000000000000000000000000bfbebfbe0000"},{"id":80,"bytes":"0x00000000000000000000000000000000000040c1c24000000000c240c3c100000000404040400000000040404040000000000000000000000000c1c1c1c10000"}]}};
 const PP = DATA.pitch.palette;
 const dec = h => { const s=h.slice(2), a=new Array(64); for(let i=0;i<64;i++) a[i]=parseInt(s.substr(i*2,2),16); return a; };
 const PIT = DATA.pitch.tokens.map(t=>dec(t.bytes));
@@ -854,9 +1080,38 @@ function matchStats(a,b){ const r=rng((teamId(a)<<10 ^ teamId(b)) + 99); const r
    for a real event use a fixed timestamp, e.g.
    const START = Date.UTC(2026, 6, 15, 18, 0, 0);                         */
 const KO=10, HALF=45, HT=15, HOLD=25, SLOT=KO+HALF+HT+HALF+HOLD;
-const START = Date.now() - ((4*SLOT + KO + 20) * 1000);
+/* DEMO anchor: rewinds the tournament a few matches so it's always live.
+   Used ONLY by the FORCE_LIVE / preview path below — NOT for the real launch. */
+const DEMO_ANCHOR = () => Date.now() - ((4*SLOT + KO + 20) * 1000);
+/* Kept for backwards-compat with any old references; equals the demo anchor. */
+const START = DEMO_ANCHOR();
+
+/* ============================================================
+   FORCE_LIVE — TESTING / PREVIEW OVERRIDE
+   Set to true (or open the page with ?forcelive=1) to force the
+   real tournament to start immediately using the demo anchor, so
+   matches are live for QA/owner preview without waiting for 80
+   joins + the 24h countdown. Also: setting localStorage
+   'owc:kickoff' (or the shared meta/launch.kickoff in Firestore)
+   to a PAST timestamp will start the tournament for real.
+   Leave false for production.
+   ============================================================ */
+let FORCE_LIVE = false;
+try{ if(new URLSearchParams(location.search).get('forcelive')==='1') FORCE_LIVE=true; }catch(e){}
+
+/* The kickoff timestamp for the REAL tournament, or 0 if not scheduled yet.
+   Prefers the shared (Firebase) launch time, falls back to local owc:kickoff. */
+function tournamentStart(){
+  if(FORCE_LIVE) return DEMO_ANCHOR();
+  const t = launchKickoff();      // shared value (Firebase) or local fallback
+  return Number.isFinite(t) && t>0 ? t : 0;
+}
+
 function clock(){
-  const t=(Date.now()-START)/1000;
+  const start = tournamentStart();
+  if(start===0)               return {idx:0, phase:'locked', left:0, min:0};
+  if(Date.now()<start)        return {idx:0, phase:'pre', left:(start-Date.now())/1000, min:0};
+  const t=(Date.now()-start)/1000;
   const idx=Math.floor(t/SLOT);
   if(idx>=TOTAL) return {idx:TOTAL, phase:'end', left:0, min:90};
   const s=t-idx*SLOT;
@@ -988,8 +1243,8 @@ function shotPlacement(mk, side, ms, changes){
   return {x,y,own};
 }
 
-/* ---------- NEW: match date (from START clock anchor) ---------- */
-function matchDate(idx){ const ts=START+idx*SLOT*1000; return new Date(ts).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); }
+/* ---------- NEW: match date (from the real tournament kickoff anchor) ---------- */
+function matchDate(idx){ const start=tournamentStart()||Date.now(); const ts=start+idx*SLOT*1000; return new Date(ts).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); }
 
 /* ---------- DOM ---------- */
 const $=id=>document.getElementById(id);
@@ -1054,7 +1309,38 @@ function renderStats(a,b){
   }
 }
 
+/* ---------- NEW: Play gate render (locked / pre-kickoff) ---------- */
+const playSection=()=>document.querySelector('section[data-page="play"]');
+function hideGate(){
+  const g=$('playgate'); if(g) g.hidden=true;
+  const sec=playSection(); if(sec) sec.classList.remove('gated');
+}
+function renderGate(c){
+  const g=$('playgate'); if(!g) return;
+  const sec=playSection(); if(sec) sec.classList.add('gated');
+  g.hidden=false;
+  /* champ view must not linger behind the gate */
+  $('champ').classList.remove('show'); matchstats.classList.remove('show');
+  const n=getJoins(), pct=Math.min(100,Math.round(n/JOIN_GOAL*100));
+  const nEl=$('join-n3'), barEl=$('join-bar-i3');
+  if(nEl) nEl.textContent=n; if(barEl) barEl.style.width=pct+'%';
+  const jb=$('join-btn3'); if(jb && hasJoined()) jb.textContent='You’re in — share to boost';
+  const pre=$('pg-pre');
+  if(c.phase==='pre'){
+    $('pg-eyebrow').textContent='Kickoff imminent';
+    $('pg-head').textContent='The whistle is about to blow';
+    if(pre) pre.hidden=false;
+    const clk=$('pg-clock'); if(clk) clk.textContent=fmtHMS(c.left*1000);
+  } else {
+    $('pg-eyebrow').textContent='Not kicked off yet';
+    $('pg-head').textContent='The Cup kicks off once 80 join';
+    if(pre) pre.hidden=true;
+  }
+}
+
 function renderMatch(c){
+  if(c.phase==='locked' || c.phase==='pre') return renderGate(c);
+  hideGate();
   if(c.phase==='end') return showChamp();
   $('champ').classList.remove('show'); $('deckview').style.display=''; stageEl.style.display='';
   $('statusbar').style.display=''; $('commentary').style.display='';
@@ -1150,6 +1436,8 @@ function updateScoreTime(c, picked){
   stimePhase.textContent=phase; stimeClock.textContent=clock; stimeHint.textContent=hint;
 }
 function updateClockLine(c){
+  if(c.phase==='locked'){ clockline.textContent='WAITING FOR 80 TO JOIN'; return; }
+  if(c.phase==='pre'){ clockline.innerHTML='<span class="ph">KICKOFF IN '+fmtHMS(c.left*1000)+'</span>'; return; }
   if(c.phase==='end'){ clockline.textContent='TOURNAMENT COMPLETE'; return; }
   const [a,b]=pairAtFlat(c.idx), picked=VOTED.has(keyOf(a,b));
   updateScoreTime(c, picked);
@@ -1174,6 +1462,7 @@ const LIVE_BEATS=[
 let _beatT=0;
 function setComm(html){ if(commEl) commEl.innerHTML=html; }
 function commFor(c){
+  if(c.phase==='locked' || c.phase==='pre') return;
   const [a,b]=pairAtFlat(c.idx), na=teamName(a), nb=teamName(b);
   const key=c.idx+':'+c.phase;
   if(c.phase==='ko'){ if(COMM_STATE!==key){ setComm('<b>'+na+'</b> vs <b>'+nb+'</b> — trust your gut.'); COMM_STATE=key; } return; }
@@ -1247,17 +1536,6 @@ function vote(side){
   ROUNDS=buildRounds(); renderMatch(c); updateClockLine(c); commVote(a,b,side,secs,changed,own);
   if(ONLINE){ db.collection('matchups').doc(k).set({team_a:lo, team_b:Math.max(teamId(a),teamId(b)), [eff]:INC(1)},{merge:true}).catch(()=>{}); }
 }
-function undo(){
-  const c=clock(); if(!isLive(c)) return;
-  const [a,b]=pairAtFlat(c.idx), k=keyOf(a,b);
-  if(!VOTED.has(k)) return;
-  const s=VOTED.get(k), eff=effectiveS(k,s);
-  if(TALLY[k]) TALLY[k][eff]=Math.max(0,(TALLY[k][eff]||1)-1);
-  VOTED.delete(k); saveVoted(); dropTP('vote:'+k);
-  delete SHOTS[k]; saveShots();          // reset the shot/change record for this match
-  ROUNDS=buildRounds(); renderMatch(c); updateClockLine(c);
-  if(ONLINE){ db.collection('matchups').doc(k).set({[eff]:INC(-1)},{merge:true}).catch(()=>{}); }
-}
 function resetVotes(){
   for(const [k,s] of [...VOTED.entries()]){
     const eff=effectiveS(k,s);
@@ -1273,12 +1551,10 @@ function resetVotes(){
 
 pickH.addEventListener('click',()=>vote('h'));
 pickA.addEventListener('click',()=>vote('a'));
-$('undo').addEventListener('click',undo);
 document.addEventListener('keydown',e=>{
   if(page!=='play') return;
   if(e.key==='ArrowLeft'){e.preventDefault();vote('h');}
   else if(e.key==='ArrowRight'){e.preventDefault();vote('a');}
-  else if(e.key==='u'||e.key==='U'){undo();}
 });
 
 /* ---------- pages ---------- */
@@ -1329,7 +1605,8 @@ function renderBracket(){
   RADII.forEach(r=>{ const ci=document.createElementNS(SVGNS,'circle'); ci.setAttribute('cx',cx); ci.setAttribute('cy',cy);
     ci.setAttribute('r',r); ci.setAttribute('class','cb-ring'); svg.appendChild(ci); });
   let flat=0;
-  const liveIdx=(c.phase!=='end')?c.idx:-1;
+  const notStarted=(c.phase==='locked'||c.phase==='pre');
+  const liveIdx=(c.phase!=='end'&&!notStarted)?c.idx:-1;
   for(let r=0;r<5;r++){
     const L=layout(ROUNDS[r]), rad=RADII[r], ir=IMGR[r], n=L.matches.length;
     if(!n) continue;
@@ -1388,7 +1665,8 @@ function renderStandings(){
   for(let j=0;j<done;j++){ const p=pairAtFlat(j); if(!p) continue; const [a,b]=p, w=winnerIdx(a,b), l=w===a?b:a;
     W[w]++; L[l]++; out[l]=true; }
   const champ=c.phase==='end'?ROUNDS[ROUNDS.length-1][0]:null;
-  const liveP=c.phase!=='end'?pairAtFlat(c.idx):null;
+  const notStarted=(c.phase==='locked'||c.phase==='pre');
+  const liveP=(c.phase!=='end'&&!notStarted)?pairAtFlat(c.idx):null;
   const order=Array.from({length:TEAMS},(_,i)=>i).sort((x,y)=>(W[y]-W[x])||(x-y));
   $('standbody').innerHTML=order.map(i=>{
     let st=out[i]?'OUT':'ALIVE';
@@ -1414,13 +1692,14 @@ function renderProfile(){
 }
 $('namesave').addEventListener('click',()=>{ const v=$('namein').value.trim();
   if(!v) return; localStorage.setItem(NAMEKEY,v); addTP('name',50); renderProfile(); });
-$('sharebtn').addEventListener('click',()=>{ try{ navigator.clipboard.writeText(location.href.split('#')[0]); }catch(e){}
+$('sharebtn').addEventListener('click',()=>{ try{ navigator.clipboard.writeText(location.href.split('#')[0].split('?')[0]+'?ref='+refCode()); }catch(e){}
   addTP('share',100); renderEarn(); $('sharebtn').textContent='Copied!'; });
 $('reset').addEventListener('click',resetVotes);
 
 /* ---------- NEW: signboard editor wiring (feature 1) ---------- */
 let _sbImg=null;
 function openSignboard(){
+  if(localStorage.getItem('owc:owner')!=='1') return;   // CHANGE 7: owner-only
   const cfg=getMqCfg(CUR_MK)||{};
   $('sb-textin').value=cfg.text||'';
   $('sb-colorin').value=cfg.color||'#3a3a3a';
@@ -1443,7 +1722,7 @@ $('sb-clear').addEventListener('click',()=>{ setMqCfg(CUR_MK,null); _sbImg=null;
 /* ---------- NEW: wager wiring (feature 9) ---------- */
 let _wgSide=null;
 function openWagerModal(){
-  const c=clock(); if(c.phase==='end') return;
+  const c=clock(); if(c.phase==='end'||c.phase==='locked'||c.phase==='pre') return;
   const [a,b]=pairAtFlat(c.idx), [oa,ob]=matchOdds(a,b);
   _wgSide=null; $('wg-err').textContent=''; $('wg-stake').value='';
   $('wg-lead').textContent=ROUND_NAMES[FLAT[c.idx].r]+' · pick a side, paid at full time · balance '+TP.total+' TP';
@@ -1485,16 +1764,192 @@ $('wg-place').addEventListener('click',()=>{
   renderWagerList();
 });
 
+/* ---------- NEW: home team-kit marquee (change 1) ---------- */
+let _marqueeBuilt=false;
+function buildKitMarquee(){
+  if(_marqueeBuilt) return;
+  const track=$('kit-track'); if(!track) return;
+  const frag=document.createDocumentFragment();
+  for(let pass=0; pass<2; pass++){        // duplicate the set for a seamless loop
+    for(let i=0;i<TEAMS;i++){
+      const tile=document.createElement('div'); tile.className='kit-tile';
+      const img=document.createElement('img'); img.loading='lazy'; img.alt='';
+      img.src=svgFor('home', i, 0);   // pitch index 0 (svgFor takes a pitch INDEX)
+      const n=document.createElement('span'); n.className='kt-n'; n.textContent=teamName(i);
+      tile.appendChild(img); tile.appendChild(n); frag.appendChild(tile);
+    }
+  }
+  track.appendChild(frag); _marqueeBuilt=true;
+}
+
+/* ---------- NEW: owner gate for the advertising boards (change 7) ---------- */
+function isOwner(){ return localStorage.getItem('owc:owner')==='1'; }
+function applyOwner(){ document.body.classList.toggle('owner', isOwner()); }
+function setOwner(on){ try{ if(on) localStorage.setItem('owc:owner','1'); else localStorage.removeItem('owc:owner'); }catch(e){} applyOwner(); }
+function tryUnlock(code){
+  const ok = code===OWNER_PASSCODE;
+  setOwner(ok);
+  return ok;
+}
+applyOwner();
+
+/* ---------- NEW: join / countdown UI (feature 4) ---------- */
+let _cdTimer=null;
+function fmtHMS(ms){
+  ms=Math.max(0,ms); const s=Math.floor(ms/1000);
+  const hh=String(Math.floor(s/3600)).padStart(2,'0');
+  const mm=String(Math.floor((s%3600)/60)).padStart(2,'0');
+  const ss=String(s%60).padStart(2,'0');
+  return hh+':'+mm+':'+ss;
+}
+function renderJoin(){
+  maybeStartKickoff();
+  const n=getJoins(), pct=Math.min(100, Math.round(n/JOIN_GOAL*100));
+  const nEls=[$('join-n'),$('join-n2'),$('join-n3')], barEls=[$('join-bar-i'),$('join-bar-i2'),$('join-bar-i3')];
+  nEls.forEach(el=>{ if(el) el.textContent=n; });
+  barEls.forEach(el=>{ if(el) el.style.width=pct+'%'; });
+  [$('join-btn'),$('join-btn2'),$('join-btn3')].forEach(b=>{ if(b){ if(hasJoined()){ b.textContent='You’re in — share to boost'; } } });
+  /* countdown block on the Rules page */
+  const wrap=$('countdown-wrap');
+  if(wrap){
+    const tgt=launchKickoff();
+    if(getJoins()>=JOIN_GOAL && tgt){ wrap.hidden=false; tickCountdown(); }
+    else wrap.hidden=true;
+  }
+}
+function tickCountdown(){
+  const el=$('cd-clock'), tgt=launchKickoff();
+  if(!el||!tgt) return;
+  el.textContent = fmtHMS(tgt-Date.now());
+}
+function join(){
+  if(!hasJoined()){
+    try{ localStorage.setItem(JOINED_KEY,'1'); }catch(e){}
+    setJoins(getJoins()+1);
+    if(ONLINE && db){ try{ db.collection('meta').doc('joins').set({count:INC(1)},{merge:true}).catch(()=>{}); }catch(e){} }
+  }
+  renderJoin();
+  refreshGate();        // re-evaluate the Play gate / countdown after joining
+  openShare();          // force the share prompt after joining
+}
+/* re-render the Play stage/gate immediately (used after joins/shared updates) */
+function refreshGate(){ try{ renderMatch(clock()); updateClockLine(clock()); }catch(e){} }
+$('join-btn') && $('join-btn').addEventListener('click',join);
+$('join-btn2') && $('join-btn2').addEventListener('click',join);
+$('join-btn3') && $('join-btn3').addEventListener('click',join);
+
+/* ---------- NEW: share-to-earn with a unique code (feature 6) ---------- */
+const SHARE_SITE = location.href.split('#')[0].split('?')[0];
+function shareLink(){ return SHARE_SITE+'?ref='+refCode(); }
+function shareText(){ return "I just joined the Opepen Art World Cup — 40 artworks, 90-second matches, your gut decides. Join with my code "+refCode()+" and help kick it off:"; }
+function openShare(){
+  const cEl=$('sh-code'); if(cEl) cEl.textContent=refCode();
+  const note=$('sh-note'); if(note) note.textContent='';
+  $('sh-back') && $('sh-back').classList.add('show');
+}
+function closeShare(){ $('sh-back') && $('sh-back').classList.remove('show'); }
+/* award TP for sharing, capped to once per day so it can't be farmed */
+function awardShareTP(){
+  const day=new Date().toISOString().slice(0,10);
+  const key='share:'+day;
+  const ok=addTP(key,100);
+  const note=$('sh-note');
+  if(note) note.textContent = ok ? '+100 TP for sharing today!' : 'Already earned your share bonus today.';
+  renderEarn();
+}
+$('sh-close') && $('sh-close').addEventListener('click',closeShare);
+$('sh-back') && $('sh-back').addEventListener('click',e=>{ if(e.target===$('sh-back')) closeShare(); });
+$('sh-tweet') && $('sh-tweet').addEventListener('click',()=>{
+  const url='https://twitter.com/intent/tweet?text='+encodeURIComponent(shareText())+'&url='+encodeURIComponent(shareLink());
+  window.open(url,'_blank','noopener');
+  awardShareTP();
+});
+$('sh-copy') && $('sh-copy').addEventListener('click',()=>{
+  try{ navigator.clipboard.writeText(shareLink()); }catch(e){}
+  awardShareTP();
+  const note=$('sh-note'); if(note && note.textContent==='') note.textContent='Link copied.';
+});
+/* a ?ref=CODE visit counts as a referred join (demo) — bump the counter once */
+function handleReferral(){
+  const params=new URLSearchParams(location.search);
+  const ref=params.get('ref');
+  if(ref && !localStorage.getItem('owc:refseen:'+ref) && ref!==refCode()){
+    try{ localStorage.setItem('owc:refseen:'+ref,'1'); }catch(e){}
+    setJoins(getJoins()+1);              // referred visitor bumps the join count
+    if(ONLINE && db){ try{ db.collection('meta').doc('joins').set({count:INC(1)},{merge:true}).catch(()=>{}); }catch(e){} }
+  }
+  /* owner unlock via ?owner=PASSCODE */
+  const own=params.get('owner');
+  if(own!=null){ tryUnlock(own); }
+}
+handleReferral();
+
+/* ---------- NEW: self-contained demo match (feature 5) ---------- */
+let _demoState=null;
+const DEMO_BEATS_FAST=['struck it clean — buried before the keeper moved.','went with the gut and it flew in.'];
+const DEMO_BEATS=['gets the nod after a look — on target.','edges it as the crowd roars.'];
+function newDemoMatch(){
+  /* deterministic-ish pairing seeded by time so each demo feels fresh */
+  let a=Math.floor(Math.random()*TEAMS), b=Math.floor(Math.random()*TEAMS);
+  if(b===a) b=(a+1+Math.floor(Math.random()*(TEAMS-1)))%TEAMS;
+  const pit=(a*31+b*17)%PIT.length;      // pitch INDEX for svgFor
+  _demoState={a,b,pit,decided:false,t0:Date.now()};
+  $('demo-img-h').src=svgFor('home',a,pit);
+  $('demo-img-a').src=svgFor('home',b,pit);
+  $('demo-lbl-h').textContent=teamName(a);
+  $('demo-lbl-a').textContent=teamName(b);
+  $('demo-sc-h').textContent='0'; $('demo-sc-a').textContent='0';
+  $('demo-comm').innerHTML='Tap a side to cast your vote.';
+  $('demo-h').classList.remove('win','lose'); $('demo-a').classList.remove('win','lose');
+  $('demo-shot-h').hidden=true; $('demo-shot-a').hidden=true;
+}
+function demoVote(side){
+  if(!_demoState || _demoState.decided) return;
+  _demoState.decided=true;
+  const {a,b}=_demoState;
+  const secs=(Date.now()-_demoState.t0)/1000;
+  /* your side scores; the other side gets a crowd baseline so it's a real result */
+  const [cb,ca]=crowd(a,b);
+  let hv = side==='h' ? Math.max(cb,ca)+2 : Math.min(cb,ca);
+  let av = side==='a' ? Math.max(cb,ca)+2 : Math.min(cb,ca);
+  $('demo-sc-h').textContent=hv; $('demo-sc-a').textContent=av;
+  /* shot placement mirrors the real mechanic: fast = central & high */
+  const p=shotPlacement('demo|'+a+'-'+b, side, secs*1000, 0);
+  const shot = side==='h' ? $('demo-shot-h') : $('demo-shot-a');
+  shot.style.left=(p.x*100)+'%'; shot.style.top=(p.y*100)+'%'; shot.hidden=false;
+  const win = hv>=av ? 'h' : 'a';
+  $('demo-h').classList.toggle('win', win==='h'); $('demo-h').classList.toggle('lose', win!=='h');
+  $('demo-a').classList.toggle('win', win==='a'); $('demo-a').classList.toggle('lose', win!=='a');
+  const nm = side==='h'?teamName(a):teamName(b);
+  let beat;
+  if(secs<3) beat=DEMO_BEATS_FAST[Math.floor(Math.random()*DEMO_BEATS_FAST.length)];
+  else beat=DEMO_BEATS[Math.floor(Math.random()*DEMO_BEATS.length)];
+  $('demo-comm').innerHTML='<b>'+nm+'</b> '+beat+' <b>Full time.</b> That’s how a match plays out — now bring 80 people in.';
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches) fireConfetti('demo:'+Date.now());
+}
+$('demo-h') && $('demo-h').addEventListener('click',()=>demoVote('h'));
+$('demo-a') && $('demo-a').addEventListener('click',()=>demoVote('a'));
+$('demo-again') && $('demo-again').addEventListener('click',newDemoMatch);
+function renderDemo(){ if(!_demoState) newDemoMatch(); renderJoin(); }
+function renderRules(){ renderJoin(); }
+
 /* ---------- router ---------- */
-const PAGERENDER={teams:renderTeams,bracket:renderBracket,standings:renderStandings,earn:renderEarn,profile:renderProfile};
+function renderPlay(){ renderJoin(); refreshGate(); }
+const PAGERENDER={home:buildKitMarquee,play:renderPlay,demo:renderDemo,rules:renderRules,teams:renderTeams,bracket:renderBracket,standings:renderStandings,earn:renderEarn,profile:renderProfile};
 let page='home';
 function route(){
-  const h=(location.hash||'#/').slice(2)||'home';
-  page=['home','play','teams','bracket','standings','earn','rules','profile'].includes(h)?h:'home';
+  let h=(location.hash||'#/').slice(2)||'home';
+  /* CHANGE 7: #/unlock prompts for the owner passcode, then redirects home */
+  if(h==='unlock'){
+    const code=window.prompt('Owner passcode:');
+    if(code!=null){ const ok=tryUnlock(code); window.alert(ok?'Owner mode unlocked — you can edit the boards.':'Wrong passcode. Owner mode is off.'); }
+    location.hash='#/'; return;
+  }
+  page=['home','play','demo','teams','bracket','standings','earn','rules','profile'].includes(h)?h:'home';
   document.querySelectorAll('section[data-page]').forEach(s=>{ s.hidden=s.dataset.page!==page; });
   document.querySelectorAll('nav.top a').forEach(a=>a.classList.toggle('on',a.dataset.p===page));
   if(PAGERENDER[page]) PAGERENDER[page]();
-  const tf=(page==='earn'||page==='rules')?'profile':page;
+  const tf=(page==='earn'||page==='rules'||page==='demo')?'profile':page;
   document.querySelectorAll('.tabbar a').forEach(a=>a.classList.toggle('on',a.dataset.p===tf));
   snapHeights();
 }
@@ -1517,11 +1972,29 @@ function tick(){
   last={idx:c.idx,phase:c.phase};
 }
 tick(); setInterval(tick,250);
+/* countdown ticks once a second while the Rules page is visible */
+setInterval(()=>{ if(page==='rules'){ const w=$('countdown-wrap'); if(w && !w.hidden) tickCountdown(); } }, 1000);
 if(ONLINE){
   db.collection('matchups').onSnapshot(snap=>{
     snap.forEach(d=>{ const x=d.data()||{}; TALLY[d.id]={a:x.a||0,b:x.b||0}; });
     ROUNDS=buildRounds(); const c=clock(); renderMatch(c);
     if(PAGERENDER[page]) PAGERENDER[page]();
+  }, ()=>{});
+
+  /* SHARED join count: meta/joins.count is the global source of truth */
+  db.collection('meta').doc('joins').onSnapshot(d=>{
+    const x=(d && d.data())||{};
+    if(typeof x.count==='number'){ SHARED_JOINS=x.count; }
+    maybeStartKickoff();          // may set meta/launch.kickoff once we hit 80
+    renderJoin();                 // update all join displays + progress bars
+    refreshGate();                // re-evaluate the Play gate / countdown
+  }, ()=>{});
+
+  /* SHARED launch time: meta/launch.kickoff drives the countdown + tournamentStart() */
+  db.collection('meta').doc('launch').onSnapshot(d=>{
+    const x=(d && d.data())||{};
+    if(typeof x.kickoff==='number'){ SHARED_KICKOFF=x.kickoff; }
+    renderJoin(); refreshGate();
   }, ()=>{});
 }
 window.addEventListener('resize', snapHeights);
