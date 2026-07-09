@@ -850,6 +850,15 @@
     </div>
   </section>
 
+  <!-- ================= OWNER UNLOCK ================= -->
+  <section data-page="unlock" hidden class="page">
+    <div class="panel">
+      <h2 class="pt">Owner Access</h2>
+      <p class="psub">Server-enforced &mdash; only the owner can edit the boards</p>
+      <div id="unlock-box"></div>
+    </div>
+  </section>
+
   <!-- ================= SIGNBOARD EDITOR MODAL ================= -->
   <div class="sb-back" id="sb-back">
     <div class="sb-pop" id="sb-pop">
@@ -864,6 +873,8 @@
       <label class="sb-lbl" for="sb-filein">Upload image (tiled banner)</label>
       <input type="file" accept="image/*" class="sb-file" id="sb-filein">
       <div class="sb-prev" id="sb-prev"></div>
+      <label class="sb-lbl" for="sb-linkin">Link URL (optional — makes the board clickable)</label>
+      <input type="url" class="sb-text" id="sb-linkin" placeholder="https://your-sponsor.com">
       <div class="sb-row">
         <button class="sb-btn sb-save" id="sb-save">Save</button>
         <button class="sb-btn sb-clear" id="sb-clear">Clear / Reset</button>
@@ -896,51 +907,80 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script>
 /* ============================================================
    BACKEND CONFIG — Firebase web config (safe to ship publicly;
    writes are guarded by Firestore security rules). Leave blank
    to run in offline/demo mode with seeded numbers.
    ============================================================ */
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyAv8AV5qO3TeGZt6Mn5VC4l-pJlXukzez0",
-  authDomain: "opepen-world-cup.firebaseapp.com",
-  projectId: "opepen-world-cup",
-  storageBucket: "opepen-world-cup.firebasestorage.app",
-  messagingSenderId: "910344608743",
-  appId: "1:910344608743:web:49611d8ec7e4e409d0bb42",
-  measurementId: "G-22XQH764JV"
+const OWC_CONFIG = {
+  firebase: {
+    apiKey: "AIzaSyAv8AV5qO3TeGZt6Mn5VC4l-pJlXukzez0",
+    authDomain: "opepen-world-cup.firebaseapp.com",
+    projectId: "opepen-world-cup",
+    storageBucket: "opepen-world-cup.firebasestorage.app",
+    messagingSenderId: "910344608743",
+    appId: "1:910344608743:web:49611d8ec7e4e409d0bb42",
+    measurementId: "G-22XQH764JV"
+  }
 };
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-  
-let db=null, ONLINE=false;
+let db=null, auth=null, ONLINE=false, CONFIGURED=false;
 try{
   if(OWC_CONFIG.firebase.projectId && window.firebase){
     firebase.initializeApp(OWC_CONFIG.firebase);
     db = firebase.firestore();
-    ONLINE = true;
+    auth = firebase.auth();
+    CONFIGURED = true;   // SDK + config present. ONLINE flips true only AFTER
+                         // anonymous auth succeeds (see auth block) — until then
+                         // the app runs the local demo path, so it always works
+                         // even before Firebase Auth/rules are set up.
   }
-}catch(e){ ONLINE=false; }
+}catch(e){ CONFIGURED=false; }
 const INC = n => firebase.firestore.FieldValue.increment(n);
 
 /* ============================================================
-   OWNER PASSCODE — only the owner can edit the advertising boards.
-   >>> CHANGE THIS to your own secret before shipping. <<<
-   Unlock by visiting #/unlock (you'll be prompted) or opening the
-   site with ?owner=YOURPASSCODE. The unlock flag lives in
-   localStorage 'owc:owner'. Clear it by re-visiting #/unlock and
-   entering anything but the passcode, or clearing site data.
+   AUTH — server-enforced access control (tamper-proof).
+   Everyone (voters + joiners) signs in ANONYMOUSLY so Firestore
+   rules can require an identity. The OWNER signs in with GOOGLE;
+   their uid must equal OWNER_UID below. The real security boundary
+   is OWNER_UID + the Firestore rules (see DEPLOY.md) — NOT any
+   client-side flag. AUTH_UID is the current signed-in uid (or null
+   when offline / not yet signed in).
+   ============================================================ */
+let AUTH_UID = null;
+/* <-- paste your Google account UID here (see DEPLOY.md §"Locking it down"). */
+const OWNER_UID = '';
+
+if(CONFIGURED && auth){
+  auth.onAuthStateChanged(u=>{
+    AUTH_UID = u ? u.uid : null;
+    /* Flip ONLINE only once we actually have an identity. If anonymous auth is
+       disabled or blocked, ONLINE stays false and the local demo keeps working. */
+    if(u && !ONLINE){
+      ONLINE = true;
+      try{ attachSnapshots(); }catch(e){}
+      try{ const c=clock(); renderMatch(c); }catch(e){}
+      try{ if(PAGERENDER[page]) PAGERENDER[page](); }catch(e){}
+      try{ renderJoin(); refreshGate(); }catch(e){}
+    }
+    try{ applyOwner(); }catch(e){}
+    try{ renderUnlock(); }catch(e){}
+  });
+  /* give every visitor an identity so the anon-auth gate applies */
+  if(!auth.currentUser){ auth.signInAnonymously().catch(()=>{}); }
+}
+
+/* server-enforced owner check: online only, and uid must match OWNER_UID. */
+function isOwner(){ return !!(ONLINE && AUTH_UID && OWNER_UID && AUTH_UID===OWNER_UID); }
+
+/* ============================================================
+   OWNER PASSCODE — OFFLINE-DEMO CONVENIENCE ONLY.
+   This is NOT the security boundary. Online, the owner boundary is
+   OWNER_UID + the Firestore rule. This passcode/local flag only lets
+   you demo board editing when there is NO Firebase config (offline).
+   Unlock offline by visiting #/unlock or opening with ?owner=PASSCODE;
+   the flag lives in localStorage 'owc:owner'.
    ============================================================ */
 const OWNER_PASSCODE = 'dewd2026';
 
@@ -970,7 +1010,7 @@ function hasJoined(){ return localStorage.getItem(JOINED_KEY)==='1'; }
    (best-effort; last write wins if two clients race). */
 function maybeStartKickoff(){
   if(getJoins()<JOIN_GOAL) return;
-  if(ONLINE && db){
+  if(ONLINE && db && AUTH_UID){    // meta writes require a signed-in identity (rule)
     if(SHARED_KICKOFF==null){       // no shared launch time yet -> set it once
       const t=Date.now()+KICKOFF_MS;
       try{ db.collection('meta').doc('launch').set({kickoff:t},{merge:true}).catch(()=>{}); }catch(e){}
@@ -1023,13 +1063,35 @@ function svgFor(kind, idx, pitIdx){
 
 const T = "DISTRACTION BOARD • PAY NO ATTENTION • OR PAY FOR YOUR DISTRACTION HERE • ";
 
-/* ---------- per-match signboard config (localStorage owc:mq:<matchKey>) ---------- */
+/* ---------- per-match signboard config ----------
+   ONLINE: source of truth is Firestore collection `boards` (doc id = match key),
+   read live into BOARDS_MAP via onSnapshot below, and writes go through
+   db.collection('boards').doc(mk).set(...) — which SUCCEEDS only for the OWNER
+   because of the Firestore rule (writes fail quietly for everyone else).
+   OFFLINE: falls back to localStorage key owc:mq:<matchKey> so the demo works. */
+let BOARDS_MAP = {};   // matchKey -> cfg object (live, online only)
 function mqStoreKey(mk){ return 'owc:mq:'+mk; }
-function getMqCfg(mk){ if(!mk) return null; try{ const r=localStorage.getItem(mqStoreKey(mk)); return r?JSON.parse(r):null; }catch(e){ return null; } }
-function setMqCfg(mk,cfg){ if(!mk) return; try{
-  if(cfg && (cfg.text||cfg.img||cfg.color||cfg.bg)) localStorage.setItem(mqStoreKey(mk),JSON.stringify(cfg));
-  else localStorage.removeItem(mqStoreKey(mk));
-}catch(e){} }
+function getMqCfg(mk){
+  if(!mk) return null;
+  if(ONLINE){ return BOARDS_MAP[mk] || null; }
+  try{ const r=localStorage.getItem(mqStoreKey(mk)); return r?JSON.parse(r):null; }catch(e){ return null; }
+}
+function setMqCfg(mk,cfg){
+  if(!mk) return;
+  const has = cfg && (cfg.text||cfg.img||cfg.color||cfg.bg||cfg.link);
+  if(ONLINE && db){
+    /* owner-writable only; rejected writes for non-owners fail quietly. */
+    try{
+      if(has){ BOARDS_MAP[mk]=cfg; db.collection('boards').doc(mk).set(cfg,{merge:true}).catch(()=>{}); }
+      else { delete BOARDS_MAP[mk]; db.collection('boards').doc(mk).delete().catch(()=>{}); }
+    }catch(e){}
+    return;
+  }
+  try{
+    if(has) localStorage.setItem(mqStoreKey(mk),JSON.stringify(cfg));
+    else localStorage.removeItem(mqStoreKey(mk));
+  }catch(e){}
+}
 function mqTextFor(mk){ const c=getMqCfg(mk); if(c && c.text && c.text.trim()) return c.text.trim().toUpperCase()+' • '; return T; }
 /* paint one marquee element from the current match config */
 function applyMarquee(id, reps){
@@ -1048,7 +1110,13 @@ function applyMarquee(id, reps){
     el.textContent=mqTextFor(CUR_MK).repeat(reps);
   }
   if(cfg && cfg.color) el.style.color=cfg.color;
-  if(cfg && cfg.bg){ el.parentElement.style.background=cfg.bg; } else { el.parentElement.style.background=''; }
+  const bd=el.parentElement;
+  if(cfg && cfg.bg){ bd.style.background=cfg.bg; } else { bd.style.background=''; }
+  /* clickable sponsor board when a link is set (owner-configured) */
+  if(cfg && cfg.link){
+    bd.style.cursor='pointer'; bd.title='Sponsored — '+cfg.link;
+    bd.onclick=()=>{ try{ window.open(cfg.link,'_blank','noopener,noreferrer'); }catch(e){} };
+  } else { bd.style.cursor=''; bd.title=''; bd.onclick=null; }
 }
 let CUR_MK=null;
 function paintMarquees(){ applyMarquee('tk-t',6); applyMarquee('tk-b',6); applyMarquee('tk-l',4); applyMarquee('tk-r',4); }
@@ -1525,12 +1593,7 @@ function vote(side){
   const prev=VOTED.get(k);
   if(prev===s) return;                    // same pick, nothing to do
   const changed=VOTED.has(k);
-  /* remove the previously-applied (effective) contribution before re-applying */
-  const prevEff = prev!=null ? effectiveS(k, prev) : null;
-  if(changed && prevEff){
-    TALLY[k][prevEff]=Math.max(0,(TALLY[k][prevEff]||1)-1);
-    if(ONLINE){ db.collection('matchups').doc(k).set({[prevEff]:INC(-1)},{merge:true}).catch(()=>{}); }
-  }
+
   /* update the per-match shot record: decision speed (ms) + running change count */
   const ms=Date.now()-_matchOpen.t;
   const prevRec=SHOTS[k]||{side, changes:0, ms};
@@ -1538,21 +1601,47 @@ function vote(side){
   SHOTS[k]={side, changes, ms}; saveShots();
   const own=isOwnGoal(SHOTS[k]);
   const eff=own?otherS(s):s;             // effective scoring side after this vote
-  TALLY[k][eff]=(TALLY[k][eff]||0)+1;
   VOTED.set(k,s); saveVoted();
   /* taste points: +25 for a first pick; no TP for an own goal */
   if(!changed && !own) addTP('vote:'+k,25);
   if(own) dropTP('vote:'+k);             // claw back the TP if it turned into an own goal
   const secs=ms/1000;
+
+  if(ONLINE){
+    /* Server-enforced one-vote-per-person-per-match: write the CALLER'S OWN
+       vote doc (id = matchKey__uid). The rule only lets a user write a doc whose
+       uid segment == request.auth.uid, so nobody can stuff counters. Overwriting
+       changes the vote. Tally is rebuilt from the `votes` snapshot below — we do
+       NOT touch TALLY here to avoid double-counting.
+       NOTE: counting client-side by reading `votes` is fine for launch scale; for
+       very large audiences add a Cloud Function to aggregate (see DEPLOY.md). */
+    const writeVote=()=>{
+      try{
+        db.collection('votes').doc(k+'__'+AUTH_UID)
+          .set({k:k, side:eff, ts:Date.now()}).catch(()=>{});
+      }catch(e){}
+    };
+    if(AUTH_UID){ writeVote(); }
+    else if(auth){ auth.signInAnonymously().then(()=>{ /* onAuthStateChanged sets AUTH_UID */ setTimeout(writeVote,300); }).catch(()=>{}); }
+    /* re-render immediately for responsiveness; the snapshot will reconcile TALLY */
+    ROUNDS=buildRounds(); renderMatch(c); updateClockLine(c); commVote(a,b,side,secs,changed,own);
+    return;
+  }
+
+  /* OFFLINE: local tally behavior (unchanged) */
+  const prevEff = prev!=null ? effectiveS(k, prev) : null;
+  if(changed && prevEff){ TALLY[k][prevEff]=Math.max(0,(TALLY[k][prevEff]||1)-1); }
+  TALLY[k][eff]=(TALLY[k][eff]||0)+1;
   ROUNDS=buildRounds(); renderMatch(c); updateClockLine(c); commVote(a,b,side,secs,changed,own);
-  if(ONLINE){ db.collection('matchups').doc(k).set({team_a:lo, team_b:Math.max(teamId(a),teamId(b)), [eff]:INC(1)},{merge:true}).catch(()=>{}); }
 }
 function resetVotes(){
   for(const [k,s] of [...VOTED.entries()]){
     const eff=effectiveS(k,s);
-    if(TALLY[k]) TALLY[k][eff]=Math.max(0,(TALLY[k][eff]||1)-1);
+    if(!ONLINE && TALLY[k]) TALLY[k][eff]=Math.max(0,(TALLY[k][eff]||1)-1);
     dropTP('vote:'+k); dropTP('win:'+k);
-    if(ONLINE) db.collection('matchups').doc(k).set({[eff]:INC(-1)},{merge:true}).catch(()=>{});
+    /* ONLINE: delete the caller's own vote doc (rule allows deleting your own).
+       The votes snapshot then reconciles TALLY. */
+    if(ONLINE && db && AUTH_UID){ try{ db.collection('votes').doc(k+'__'+AUTH_UID).delete().catch(()=>{}); }catch(e){} }
   }
   VOTED.clear(); saveVoted();
   SHOTS={}; saveShots();                 // reset all shot/change counters
@@ -1710,13 +1799,14 @@ $('reset').addEventListener('click',resetVotes);
 /* ---------- NEW: signboard editor wiring (feature 1) ---------- */
 let _sbImg=null;
 function openSignboard(){
-  if(localStorage.getItem('owc:owner')!=='1') return;   // CHANGE 7: owner-only
+  if(!canEditBoards()) return;   // owner-only (server-backed when online)
   const cfg=getMqCfg(CUR_MK)||{};
   $('sb-textin').value=cfg.text||'';
   $('sb-colorin').value=cfg.color||'#3a3a3a';
   $('sb-bgin').value=cfg.bg||'#0a0a0a';
   _sbImg=cfg.img||null;
   $('sb-prev').innerHTML=_sbImg?'<img src="'+_sbImg+'" alt="preview" style="max-height:40px;max-width:100%;object-fit:contain">':'';
+  $('sb-linkin').value=cfg.link||'';
   $('sb-filein').value='';
   $('sb-back').classList.add('show');
 }
@@ -1726,7 +1816,7 @@ $('sb-close').addEventListener('click',closeSignboard);
 $('sb-back').addEventListener('click',e=>{ if(e.target===$('sb-back')) closeSignboard(); });
 $('sb-filein').addEventListener('change',e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return;
   const rd=new FileReader(); rd.onload=()=>{ _sbImg=rd.result; $('sb-prev').innerHTML='<img src="'+_sbImg+'" alt="preview" style="max-height:40px;max-width:100%;object-fit:contain">'; }; rd.readAsDataURL(f); });
-$('sb-save').addEventListener('click',()=>{ setMqCfg(CUR_MK,{text:$('sb-textin').value, img:_sbImg, color:$('sb-colorin').value, bg:$('sb-bgin').value});
+$('sb-save').addEventListener('click',()=>{ setMqCfg(CUR_MK,{text:$('sb-textin').value, img:_sbImg, color:$('sb-colorin').value, bg:$('sb-bgin').value, link:($('sb-linkin').value||'').trim()});
   paintMarquees(); closeSignboard(); });
 $('sb-clear').addEventListener('click',()=>{ setMqCfg(CUR_MK,null); _sbImg=null; paintMarquees(); closeSignboard(); });
 
@@ -1793,14 +1883,67 @@ function buildKitMarquee(){
   track.appendChild(frag); _marqueeBuilt=true;
 }
 
-/* ---------- NEW: owner gate for the advertising boards (change 7) ---------- */
-function isOwner(){ return localStorage.getItem('owc:owner')==='1'; }
-function applyOwner(){ document.body.classList.toggle('owner', isOwner()); }
+/* ---------- NEW: owner gate for the advertising boards (change 7) ----------
+   The ✎ edit affordance shows when:
+     - ONLINE: the Google-authed uid matches OWNER_UID (isOwner(), server-backed), OR
+     - OFFLINE (no Firebase config): the legacy local owner flag is set (demo only).
+   Online, even if the local flag were forged, the Firestore rule rejects the
+   write — so the flag never grants real power. */
+function localOwnerFlag(){ return localStorage.getItem('owc:owner')==='1'; }
+/* can the current user SEE/USE the board editor? */
+function canEditBoards(){ return ONLINE ? isOwner() : localOwnerFlag(); }
+function applyOwner(){ document.body.classList.toggle('owner', canEditBoards()); }
 function setOwner(on){ try{ if(on) localStorage.setItem('owc:owner','1'); else localStorage.removeItem('owc:owner'); }catch(e){} applyOwner(); }
+/* OFFLINE-only passcode unlock (demo convenience; not a security boundary). */
 function tryUnlock(code){
   const ok = code===OWNER_PASSCODE;
   setOwner(ok);
   return ok;
+}
+/* Owner sign-in flow (ONLINE): Google popup. Offline: passcode prompt. */
+function ownerSignIn(){
+  if(ONLINE && auth){
+    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+      .then(()=>{ applyOwner(); renderUnlock(); })
+      .catch(()=>{ renderUnlock(); });
+    return;
+  }
+  const code=window.prompt('Owner passcode (offline demo):');
+  if(code!=null){ const ok=tryUnlock(code); window.alert(ok?'Owner mode unlocked (offline demo) — you can edit the boards.':'Wrong passcode. Owner mode is off.'); }
+}
+function ownerSignOut(){
+  if(ONLINE && auth){
+    auth.signOut().then(()=>{ auth.signInAnonymously().catch(()=>{}); applyOwner(); renderUnlock(); }).catch(()=>{});
+  } else {
+    setOwner(false); renderUnlock();
+  }
+}
+/* Render the #/unlock screen state (sign-in / sign-out / status). */
+function renderUnlock(){
+  const box=document.getElementById('unlock-box'); if(!box) return;
+  const online = ONLINE;
+  const owner = canEditBoards();
+  let html='';
+  if(online){
+    if(owner){
+      html='<p class="rules" style="margin:0 0 14px">Signed in as the <b>owner</b>. You can edit the advertising boards on the Play page.</p>'+
+           (AUTH_UID?'<p class="psub" style="margin:0 0 14px">uid: '+AUTH_UID+'</p>':'')+
+           '<button class="btn" id="unlock-signout">Sign out</button>';
+    } else {
+      const uidLine = AUTH_UID ? '<p class="psub" style="margin:0 0 14px">Your uid: '+AUTH_UID+' — paste into OWNER_UID to become owner.</p>' : '';
+      html='<p class="rules" style="margin:0 0 14px">Sign in with the owner Google account to edit the advertising boards. Everyone else is signed in anonymously automatically.</p>'+
+           uidLine+
+           '<button class="btn" id="unlock-signin">Sign in with Google</button>';
+    }
+  } else {
+    html='<p class="rules" style="margin:0 0 14px">Offline demo (no Firebase config). Owner editing uses a local passcode — <b>this is not a security boundary</b>. Online, only the Google-authed OWNER_UID can edit boards, enforced by Firestore rules.</p>'+
+         (owner
+           ? '<button class="btn" id="unlock-signout">Lock (offline)</button>'
+           : '<button class="btn" id="unlock-signin">Enter owner passcode</button>');
+  }
+  box.innerHTML=html;
+  const si=document.getElementById('unlock-signin'); if(si) si.addEventListener('click',ownerSignIn);
+  const so=document.getElementById('unlock-signout'); if(so) so.addEventListener('click',ownerSignOut);
 }
 applyOwner();
 
@@ -1837,7 +1980,8 @@ function join(){
   if(!hasJoined()){
     try{ localStorage.setItem(JOINED_KEY,'1'); }catch(e){}
     setJoins(getJoins()+1);
-    if(ONLINE && db){ try{ db.collection('meta').doc('joins').set({count:INC(1)},{merge:true}).catch(()=>{}); }catch(e){} }
+    /* joins require an identity (anon auth): only write when signed in. */
+    if(ONLINE && db && AUTH_UID){ try{ db.collection('meta').doc('joins').set({count:INC(1)},{merge:true}).catch(()=>{}); }catch(e){} }
   }
   renderJoin();
   refreshGate();        // re-evaluate the Play gate / countdown after joining
@@ -1887,11 +2031,16 @@ function handleReferral(){
   if(ref && !localStorage.getItem('owc:refseen:'+ref) && ref!==refCode()){
     try{ localStorage.setItem('owc:refseen:'+ref,'1'); }catch(e){}
     setJoins(getJoins()+1);              // referred visitor bumps the join count
-    if(ONLINE && db){ try{ db.collection('meta').doc('joins').set({count:INC(1)},{merge:true}).catch(()=>{}); }catch(e){} }
+    if(ONLINE && db && AUTH_UID){ try{ db.collection('meta').doc('joins').set({count:INC(1)},{merge:true}).catch(()=>{}); }catch(e){} }
   }
-  /* owner unlock via ?owner=PASSCODE */
+  /* owner unlock via ?owner :
+     - ONLINE: trigger the Google owner sign-in flow (value ignored).
+     - OFFLINE: legacy passcode unlock (?owner=PASSCODE), demo convenience only. */
   const own=params.get('owner');
-  if(own!=null){ tryUnlock(own); }
+  if(own!=null){
+    if(ONLINE && auth){ ownerSignIn(); }
+    else { tryUnlock(own); }
+  }
 }
 handleReferral();
 
@@ -1946,17 +2095,12 @@ function renderRules(){ renderJoin(); }
 
 /* ---------- router ---------- */
 function renderPlay(){ renderJoin(); refreshGate(); }
-const PAGERENDER={home:buildKitMarquee,play:renderPlay,demo:renderDemo,rules:renderRules,teams:renderTeams,bracket:renderBracket,standings:renderStandings,earn:renderEarn,profile:renderProfile};
+const PAGERENDER={home:buildKitMarquee,play:renderPlay,demo:renderDemo,rules:renderRules,teams:renderTeams,bracket:renderBracket,standings:renderStandings,earn:renderEarn,profile:renderProfile,unlock:renderUnlock};
 let page='home';
 function route(){
   let h=(location.hash||'#/').slice(2)||'home';
-  /* CHANGE 7: #/unlock prompts for the owner passcode, then redirects home */
-  if(h==='unlock'){
-    const code=window.prompt('Owner passcode:');
-    if(code!=null){ const ok=tryUnlock(code); window.alert(ok?'Owner mode unlocked — you can edit the boards.':'Wrong passcode. Owner mode is off.'); }
-    location.hash='#/'; return;
-  }
-  page=['home','play','demo','teams','bracket','standings','earn','rules','profile'].includes(h)?h:'home';
+  /* #/unlock is now a real page: owner Google sign-in (online) or passcode (offline). */
+  page=['home','play','demo','teams','bracket','standings','earn','rules','profile','unlock'].includes(h)?h:'home';
   document.querySelectorAll('section[data-page]').forEach(s=>{ s.hidden=s.dataset.page!==page; });
   document.querySelectorAll('nav.top a').forEach(a=>a.classList.toggle('on',a.dataset.p===page));
   if(PAGERENDER[page]) PAGERENDER[page]();
@@ -1985,11 +2129,29 @@ function tick(){
 tick(); setInterval(tick,250);
 /* countdown ticks once a second while the Rules page is visible */
 setInterval(()=>{ if(page==='rules'){ const w=$('countdown-wrap'); if(w && !w.hidden) tickCountdown(); } }, 1000);
-if(ONLINE){
-  db.collection('matchups').onSnapshot(snap=>{
-    snap.forEach(d=>{ const x=d.data()||{}; TALLY[d.id]={a:x.a||0,b:x.b||0}; });
+let _snapAttached=false;
+function attachSnapshots(){
+  if(_snapAttached || !db) return; _snapAttached=true;
+  /* VOTES: one doc per user per match (id = matchKey__uid). Rebuild TALLY by
+     grouping docs by their `k` and counting side==='a' vs 'b'. This replaces the
+     old `matchups` increment counters — no more per-doc counters to inflate. */
+  db.collection('votes').onSnapshot(snap=>{
+    const agg={};
+    snap.forEach(d=>{ const x=d.data()||{}; const k=x.k; if(!k) return;
+      if(!agg[k]) agg[k]={a:0,b:0};
+      if(x.side==='a') agg[k].a++; else if(x.side==='b') agg[k].b++;
+    });
+    TALLY = agg;
     ROUNDS=buildRounds(); const c=clock(); renderMatch(c);
     if(PAGERENDER[page]) PAGERENDER[page]();
+  }, ()=>{});
+
+  /* BOARDS: live advertising-board config for everyone; owner-writable only. */
+  db.collection('boards').onSnapshot(snap=>{
+    const m={};
+    snap.forEach(d=>{ m[d.id]=d.data()||{}; });
+    BOARDS_MAP=m;
+    try{ paintMarquees(); }catch(e){}
   }, ()=>{});
 
   /* SHARED join count: meta/joins.count is the global source of truth */
