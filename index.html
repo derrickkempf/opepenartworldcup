@@ -902,17 +902,28 @@
    writes are guarded by Firestore security rules). Leave blank
    to run in offline/demo mode with seeded numbers.
    ============================================================ */
-const OWC_CONFIG = {
-  firebase: {
-    apiKey: "AIzaSyAv8AV5qO3TeGZt6Mn5VC4l-pJlXukzez0",
-    authDomain: "opepen-world-cup.firebaseapp.com",
-    projectId: "opepen-world-cup",
-    storageBucket: "opepen-world-cup.firebasestorage.app",
-    messagingSenderId: "910344608743",
-    appId: "1:910344608743:web:49611d8ec7e4e409d0bb42",
-    measurementId: "G-22XQH764JV"
-  }
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAv8AV5qO3TeGZt6Mn5VC4l-pJlXukzez0",
+  authDomain: "opepen-world-cup.firebaseapp.com",
+  projectId: "opepen-world-cup",
+  storageBucket: "opepen-world-cup.firebasestorage.app",
+  messagingSenderId: "910344608743",
+  appId: "1:910344608743:web:49611d8ec7e4e409d0bb42",
+  measurementId: "G-22XQH764JV"
 };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+  
 let db=null, ONLINE=false;
 try{
   if(OWC_CONFIG.firebase.projectId && window.firebase){
