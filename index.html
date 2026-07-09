@@ -1181,7 +1181,7 @@ try{ if(new URLSearchParams(location.search).get('forcelive')==='1') FORCE_LIVE=
 /* The kickoff timestamp for the REAL tournament, or 0 if not scheduled yet.
    Prefers the shared (Firebase) launch time, falls back to local owc:kickoff. */
 function tournamentStart(){
-  if(FORCE_LIVE) return DEMO_ANCHOR();
+  if(FORCE_LIVE) return START;   // fixed load-time anchor so the clock advances (not recomputed each tick)
   const t = launchKickoff();      // shared value (Firebase) or local fallback
   return Number.isFinite(t) && t>0 ? t : 0;
 }
@@ -1905,7 +1905,9 @@ function ownerSignIn(){
   if(ONLINE && auth){
     auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
       .then(()=>{ applyOwner(); renderUnlock(); })
-      .catch(()=>{ renderUnlock(); });
+      .catch((e)=>{ const code=(e&&e.code)||(e&&e.message)||'popup closed';
+        try{ alert('Google sign-in failed: '+code+'\n\nIf this says "auth/unauthorized-domain", add this site\'s domain in Firebase → Authentication → Settings → Authorized domains. If "operation-not-allowed", enable the Google provider.'); }catch(_){}
+        renderUnlock(); });
     return;
   }
   const code=window.prompt('Owner passcode (offline demo):');
