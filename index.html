@@ -363,6 +363,29 @@
   .sb-btn.sb-save{border-color:var(--gold); color:var(--gold-hi);}
   .sb-btn:hover{border-color:var(--gold-hi);}
 
+  /* ---------- NEW: verify-to-vote modal + toast ---------- */
+  .vf-lead{font-size:13px; line-height:1.55; color:#c7c7c7; margin:0 0 14px;}
+  .vf-email{width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:var(--ink);
+    font-family:var(--mono); font-size:13px; padding:9px 10px; margin-bottom:8px;}
+  .vf-google{width:100%; padding:11px; font-family:var(--mono); font-size:12px; letter-spacing:.1em;
+    text-transform:uppercase; cursor:pointer; border:1px solid var(--gold); background:var(--gold-hi);
+    color:#0a0a0a; font-weight:600;}
+  .vf-google:hover{background:#fff;}
+  .vf-or{display:flex; align-items:center; gap:10px; margin:14px 0; color:#4d4d4d;
+    font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase;}
+  .vf-or::before,.vf-or::after{content:""; flex:1; height:1px; background:#242424;}
+  .vf-send{width:100%; padding:10px; font-family:var(--mono); font-size:11px; letter-spacing:.1em;
+    text-transform:uppercase; cursor:pointer; border:1px solid #3a3322; background:#0b0b0b; color:var(--gold-hi);}
+  .vf-send:hover{border-color:var(--gold-hi);}
+  .vf-msg{font-family:var(--mono); font-size:11px; letter-spacing:.04em; color:var(--green); margin:10px 0 0; min-height:1.2em;}
+  .vf-msg.err{color:#e0332b;}
+  .vf-wallet{font-family:var(--mono); font-size:10px; letter-spacing:.08em; color:#5a5a5a; margin:14px 0 0; text-align:center;}
+  .toast{position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%);
+    z-index:300; background:#0c0c0c; border:1px solid var(--gold-lo); color:var(--gold-hi);
+    font-family:var(--mono); font-size:12px; letter-spacing:.04em; padding:10px 16px; border-radius:6px;
+    box-shadow:0 8px 30px rgba(0,0,0,.5); opacity:0; transition:opacity .25s var(--ease), transform .25s var(--ease); pointer-events:none;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(-4px);}
+
   /* ---------- NEW: vote-zone shot overlay ---------- */
   .shot-ov{position:absolute; inset:0; z-index:7; pointer-events:none;}
   /* the shot lands as a gold ball: a plain circle, no border/stroke/ring */
@@ -830,6 +853,21 @@
     </div>
   </div>
 
+  <!-- ================= VERIFY-TO-VOTE MODAL ================= -->
+  <div class="sb-back" id="vf-back">
+    <div class="sb-pop" id="vf-pop">
+      <button class="sb-pop-close" id="vf-close" aria-label="Close">&times;</button>
+      <div class="sb-pop-h">Verify to vote</div>
+      <p class="vf-lead">One vote per person. Verify once with Google or your email — takes a few seconds.</p>
+      <button class="vf-google" id="vf-google">Continue with Google</button>
+      <div class="vf-or">or</div>
+      <input type="email" class="vf-email" id="vf-email" placeholder="you@email.com" autocomplete="email" inputmode="email">
+      <button class="vf-send" id="vf-send">Send me a link</button>
+      <div class="vf-msg" id="vf-msg"></div>
+      <div class="vf-wallet">Wallet sign-in is coming soon.</div>
+    </div>
+  </div>
+
   <!-- ================= PROFILE ================= -->
   <section data-page="profile" hidden class="page">
     <div class="panel">
@@ -949,12 +987,27 @@ const INC = n => firebase.firestore.FieldValue.increment(n);
    when offline / not yet signed in).
    ============================================================ */
 let AUTH_UID = null;
+let AUTH_ANON = false;
 /* <-- paste your Google account UID here (see DEPLOY.md §"Locking it down"). */
 const OWNER_UID = '';
 
+/* ============================================================
+   VERIFY-TO-VOTE — a "verified" user is a real account (Google or
+   email magic-link), NOT the throwaway anonymous identity every
+   visitor gets. Browsing/reads work anonymously; casting a vote or
+   joining requires isVerified() when ONLINE. OFFLINE (no Firebase)
+   never blocks — the local demo always works.
+   _pendingVerifyFn holds the action a user tried before verifying;
+   it runs automatically once they become a verified user.
+   ============================================================ */
+let _pendingVerifyFn = null;
+function isVerified(){ return !!(ONLINE && AUTH_UID && !AUTH_ANON); }
+
 if(CONFIGURED && auth){
   auth.onAuthStateChanged(u=>{
+    const wasVerified = isVerified();
     AUTH_UID = u ? u.uid : null;
+    AUTH_ANON = u ? !!u.isAnonymous : false;   // true = throwaway anon identity, not the owner's Google login
     /* Flip ONLINE only once we actually have an identity. If anonymous auth is
        disabled or blocked, ONLINE stays false and the local demo keeps working. */
     if(u && !ONLINE){
@@ -964,11 +1017,43 @@ if(CONFIGURED && auth){
       try{ if(PAGERENDER[page]) PAGERENDER[page](); }catch(e){}
       try{ renderJoin(); refreshGate(); }catch(e){}
     }
+    /* When a user transitions INTO a verified (non-anon) identity, close the
+       verify modal and run whatever action they were trying to take. */
+    if(isVerified()){
+      try{ closeVerify(); }catch(e){}
+      if(_pendingVerifyFn){ const fn=_pendingVerifyFn; _pendingVerifyFn=null; try{ fn(); }catch(e){} }
+    }
     try{ applyOwner(); }catch(e){}
     try{ renderUnlock(); }catch(e){}
   });
-  /* give every visitor an identity so the anon-auth gate applies */
-  if(!auth.currentUser){ auth.signInAnonymously().catch(()=>{}); }
+
+  /* ---- EMAIL MAGIC-LINK RETURN (on load) ----
+     If the current URL is a sign-in link, finish the email sign-in FIRST so it
+     takes precedence over the throwaway anonymous identity. */
+  let _handlingEmailLink=false;
+  try{
+    if(auth.isSignInWithEmailLink && auth.isSignInWithEmailLink(location.href)){
+      _handlingEmailLink=true;
+      let email=null; try{ email=localStorage.getItem('owc:emailForSignIn'); }catch(e){}
+      if(!email){ try{ email=window.prompt('Confirm the email you used to request the sign-in link:'); }catch(e){} }
+      if(email){
+        auth.signInWithEmailLink(email, location.href).then(()=>{
+          try{ localStorage.removeItem('owc:emailForSignIn'); }catch(e){}
+          /* strip the email-link query params but keep the hash route */
+          try{ history.replaceState({}, document.title, location.origin+location.pathname+location.hash); }catch(e){}
+          try{ toast('Verified — you can vote now.'); }catch(e){}
+          try{ if(PAGERENDER[page]) PAGERENDER[page](); }catch(e){}
+          try{ refreshGate(); }catch(e){}
+        }).catch(()=>{ try{ toast('Sign-in link expired or invalid — request a new one.'); }catch(e){} });
+      } else {
+        _handlingEmailLink=false;   // no email to complete with; fall through to anon
+      }
+    }
+  }catch(e){ _handlingEmailLink=false; }
+
+  /* give every visitor an identity so the anon-auth gate applies (unless we are
+     mid-way through completing an email magic-link sign-in). */
+  if(!auth.currentUser && !_handlingEmailLink){ auth.signInAnonymously().catch(()=>{}); }
 }
 
 /* server-enforced owner check: online only, and uid must match OWNER_UID. */
@@ -1507,10 +1592,13 @@ function updateScoreTime(c, picked){
   const live=isLive(c), ft=c.phase==='ft';
   scoretimeEl.className='scoretime '+(live?'live':(ft?'ft':(c.phase==='ht'?'ht':'ko')));
   let phase='', clock='', hint='';
+  /* when online + not yet verified, nudge toward verifying (Google or email) */
+  const needV = ONLINE && !isVerified();
+  const pickHint = needV ? 'Verify (Google or email) to vote' : 'Make your pick';
   if(c.phase==='ko'){ phase='Pre-Match'; clock='KICKOFF'; hint='Kickoff in '+Math.ceil(c.left)+'s'; }
-  else if(c.phase==='h1'){ phase='1st Half'; clock=c.min+"'"; hint=picked?'Shoot!':'Make your pick'; }
+  else if(c.phase==='h1'){ phase='1st Half'; clock=c.min+"'"; hint=picked?'Shoot!':pickHint; }
   else if(c.phase==='ht'){ phase='Halftime'; clock='HALFTIME'; hint='Back in '+Math.ceil(c.left)+'s'; }
-  else if(c.phase==='h2'){ phase='2nd Half'; clock=c.min+"'"; hint=picked?'Shoot!':'Make your pick'; }
+  else if(c.phase==='h2'){ phase='2nd Half'; clock=c.min+"'"; hint=picked?'Shoot!':pickHint; }
   else if(ft){ phase='Full Time'; clock='FULL TIME'; hint='Next in '+Math.ceil(c.left)+'s'; }
   stimePhase.textContent=phase; stimeClock.textContent=clock; stimeHint.textContent=hint;
 }
@@ -1520,10 +1608,11 @@ function updateClockLine(c){
   if(c.phase==='end'){ clockline.textContent='TOURNAMENT COMPLETE'; return; }
   const [a,b]=pairAtFlat(c.idx), picked=VOTED.has(keyOf(a,b));
   updateScoreTime(c, picked);
+  const pickMsg = (ONLINE && !isVerified()) ? 'VERIFY TO VOTE' : 'MAKE YOUR PICK';
   const P={ko:'KICKOFF IN '+Math.ceil(c.left)+'S',
-           h1:"1ST HALF · "+c.min+"' · "+(picked?'TAP TO CHANGE PICK':'MAKE YOUR PICK'),
+           h1:"1ST HALF · "+c.min+"' · "+(picked?'TAP TO CHANGE PICK':pickMsg),
            ht:'HALFTIME · BACK IN '+Math.ceil(c.left)+'S',
-           h2:"2ND HALF · "+c.min+"' · "+(picked?'TAP TO CHANGE PICK':'MAKE YOUR PICK'),
+           h2:"2ND HALF · "+c.min+"' · "+(picked?'TAP TO CHANGE PICK':pickMsg),
            ft:'FULL TIME · '+teamName(winnerIdx(a,b)).toUpperCase()+' ADVANCE · NEXT KICKOFF IN '+Math.ceil(c.left)+'S'};
   clockline.innerHTML='<span class="ph">'+P[c.phase]+'</span>';
 }
@@ -1586,6 +1675,9 @@ const otherS=s=> s==='a'?'b':'a';
 function effectiveS(k, s){ return isOwnGoal(SHOTS[k]) ? otherS(s) : s; }
 function vote(side){
   const c=clock(); if(!isLive(c)) return;
+  /* Online, a real vote requires a VERIFIED account (Google/email), not the
+     anonymous identity. Offline demo proceeds locally with no verification. */
+  if(ONLINE && !isVerified()){ openVerify(()=>vote(side)); return; }
   const [a,b]=pairAtFlat(c.idx), k=keyOf(a,b);
   if(_matchOpen.idx!==c.idx){ _matchOpen={idx:c.idx, t:Date.now()}; }
   const lo=Math.min(teamId(a),teamId(b)), chosenId=side==='h'?teamId(a):teamId(b), s=(chosenId===lo)?'a':'b';
@@ -1932,7 +2024,9 @@ function renderUnlock(){
            (AUTH_UID?'<p class="psub" style="margin:0 0 14px">uid: '+AUTH_UID+'</p>':'')+
            '<button class="btn" id="unlock-signout">Sign out</button>';
     } else {
-      const uidLine = AUTH_UID ? '<p class="psub" style="margin:0 0 14px">Your uid: '+AUTH_UID+' — paste into OWNER_UID to become owner.</p>' : '';
+      /* Only reveal a uid AFTER the owner signs in with Google (not the throwaway
+         anonymous id every visitor gets) — so normal visitors never see a uid. */
+      const uidLine = (AUTH_UID && !AUTH_ANON) ? '<p class="psub" style="margin:0 0 14px">Signed in as '+AUTH_UID+' — paste this into OWNER_UID (then redeploy) to make this account the owner.</p>' : '';
       html='<p class="rules" style="margin:0 0 14px">Sign in with the owner Google account to edit the advertising boards. Everyone else is signed in anonymously automatically.</p>'+
            uidLine+
            '<button class="btn" id="unlock-signin">Sign in with Google</button>';
@@ -1948,6 +2042,59 @@ function renderUnlock(){
   const so=document.getElementById('unlock-signout'); if(so) so.addEventListener('click',ownerSignOut);
 }
 applyOwner();
+
+/* ---------- NEW: lightweight toast ---------- */
+let _toastT=null;
+function toast(msg){
+  let el=document.getElementById('owc-toast');
+  if(!el){ el=document.createElement('div'); el.id='owc-toast'; el.className='toast'; document.body.appendChild(el); }
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(_toastT); _toastT=setTimeout(()=>{ el.classList.remove('show'); }, 3200);
+}
+
+/* ---------- NEW: verify-to-vote modal (Google or email magic-link) ----------
+   openVerify(pendingFn) stores the action the user was trying to take and shows
+   the modal. On a successful sign-in that yields a VERIFIED (non-anon) user, the
+   onAuthStateChanged handler closes the modal and runs the pending action, so the
+   click is never lost. Google is a popup; email uses a passwordless sign-in link. */
+function vfMsg(text, isErr){ const m=$('vf-msg'); if(!m) return; m.textContent=text||''; m.classList.toggle('err', !!isErr); }
+function openVerify(pendingFn){
+  _pendingVerifyFn = (typeof pendingFn==='function') ? pendingFn : null;
+  vfMsg(''); const em=$('vf-email'); if(em) em.value='';
+  $('vf-back') && $('vf-back').classList.add('show');
+}
+function closeVerify(){ $('vf-back') && $('vf-back').classList.remove('show'); }
+$('vf-close') && $('vf-close').addEventListener('click',()=>{ _pendingVerifyFn=null; closeVerify(); });
+$('vf-back') && $('vf-back').addEventListener('click',e=>{ if(e.target===$('vf-back')){ _pendingVerifyFn=null; closeVerify(); } });
+$('vf-google') && $('vf-google').addEventListener('click',()=>{
+  if(!ONLINE || !auth){ closeVerify(); return; }   // offline: nothing to verify against
+  vfMsg('Opening Google…');
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+    .then(()=>{ /* onAuthStateChanged closes the modal + runs the pending action */ })
+    .catch(e=>{ const code=(e&&e.code)||'';
+      if(code==='auth/unauthorized-domain') vfMsg('This domain isn’t authorized in Firebase yet — add it under Authentication → Settings → Authorized domains.', true);
+      else if(code==='auth/popup-closed-by-user'||code==='auth/cancelled-popup-request') vfMsg('Sign-in cancelled.', true);
+      else if(code==='auth/operation-not-allowed') vfMsg('Google sign-in isn’t enabled in Firebase yet.', true);
+      else vfMsg('Google sign-in failed'+(code?(' ('+code+')'):'')+'.', true);
+    });
+});
+$('vf-send') && $('vf-send').addEventListener('click',()=>{
+  if(!ONLINE || !auth){ closeVerify(); return; }
+  const em=$('vf-email'), email=(em&&em.value||'').trim();
+  if(!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ vfMsg('Enter a valid email address.', true); return; }
+  const actionCodeSettings = { url: location.origin + location.pathname, handleCodeInApp: true };
+  vfMsg('Sending…');
+  auth.sendSignInLinkToEmail(email, actionCodeSettings)
+    .then(()=>{ try{ localStorage.setItem('owc:emailForSignIn', email); }catch(e){}
+      vfMsg('Check your email — tap the link to finish.'); })
+    .catch(e=>{ const code=(e&&e.code)||'';
+      if(code==='auth/unauthorized-domain') vfMsg('This domain isn’t authorized in Firebase yet — add it under Authentication → Settings → Authorized domains.', true);
+      else if(code==='auth/invalid-email') vfMsg('That email address looks invalid.', true);
+      else if(code==='auth/operation-not-allowed') vfMsg('Email link sign-in isn’t enabled in Firebase yet.', true);
+      else vfMsg('Couldn’t send the link'+(code?(' ('+code+')'):'')+'.', true);
+    });
+});
+$('vf-email') && $('vf-email').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('vf-send').click(); } });
 
 /* ---------- NEW: join / countdown UI (feature 4) ---------- */
 let _cdTimer=null;
@@ -1979,6 +2126,9 @@ function tickCountdown(){
   el.textContent = fmtHMS(tgt-Date.now());
 }
 function join(){
+  /* Online, joining requires a VERIFIED account (one person, one join). Offline
+     demo joins locally with no verification. */
+  if(ONLINE && !isVerified()){ openVerify(()=>join()); return; }
   if(!hasJoined()){
     try{ localStorage.setItem(JOINED_KEY,'1'); }catch(e){}
     setJoins(getJoins()+1);
